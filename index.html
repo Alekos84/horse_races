@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corse di Cavalli v1.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c24 50%, #2d5016 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 5px;
+        }
+
+        .game-config {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .config-item label {
+            margin-bottom: 12px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .config-item input, .config-item select {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            background: white;
+            color: #333;
+            width: 120px;
+        }
+
+        .btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .racetrack {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .game-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .horses-container {
+            min-width: 850px;
+            position: relative;
+        }
+
+        .horse-track {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            position: relative;
+            height: 50px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .track-grid {
+            position: absolute;
+            left: 0px;
+            right: 80px;
+            height: 100%;
+            display: flex;
+        }
+
+        .track-cell {
+            flex: 1;
+            height: 100%;
+            border-right: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+	.track-cell.danger-zone {
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 5px,
+        rgba(255, 68, 68, 0.2) 5px,
+        rgba(255, 68, 68, 0.2) 10px
+    );
+    border: 1px solid rgba(255, 68, 68, 0.4);
+}
+
+        .track-cell:last-child {
+            border-right: none;
+        }
+
+        .track-cell::after {
+            content: attr(data-step);
+            position: absolute;
+            bottom: -18px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .horse {
+	    position: absolute;
+	    left: 10px;
+	    top: 50%;
+	    transform: translateY(-50%);
+	    transition: all 0.8s ease-in-out;
+	    z-index: 10;
+	    padding: 3px;
+	    border-radius: 5px;
+	}
+
+        .horse-name {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            background: rgba(0,0,0,0.7);
+            padding: 2px 6px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+   
+        .victory-zone {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 20px;
+            width: 60px;
+            background: linear-gradient(90deg, rgba(255,215,0,0.3), rgba(255,215,0,0.6));
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #FFD700;
+            font-size: 12px;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 80px;
+            top: 0;
+            bottom: 20px;
+            width: 4px;
+            background: repeating-linear-gradient(
+                0deg,
+                #fff 0px,
+                #fff 10px,
+                #ff6b35 10px,
+                #ff6b35 20px
+            );
+            z-index: 5;
+        }
+
+        .finish-line::before {
+	    content: "ARRIVO";
+	    position: absolute;
+	    bottom: -30px;
+	    left: -25px;
+	    background: #ff6b35;
+	    color: white;
+	    padding: 5px 10px;
+	    border-radius: 5px;
+	    font-weight: bold;
+	    font-size: 12px;
+	}
+
+        .cards-section {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            align-items: flex-start;
+        }
+
+        .current-card-display {
+            text-align: center;
+            padding: 10px;
+            display: inline-block;
+            max-width: fit-content;
+        }
+
+        .current-card-display h4 {
+            margin-bottom: 20px;
+        }
+
+        .drawn-cards {
+            flex: 1;
+        }
+
+        .drawn-cards h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .cards-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-height: none;
+            overflow-y: visible;
+        }
+
+        .card {
+            width: 65px !important;
+            height: 90px !important;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            position: relative;
+            margin: -5px;
+            padding: 2px !important;
+        }
+
+        .card.current {
+            width: 65px !important;
+            height: 90px !important;
+            font-size: 18px;
+            border: 2px solid #ff6b35;
+            padding: 2px !important;
+        }
+
+        .card .suit {
+            font-size: 20px;
+            margin-top: 5px;
+        }
+
+        .card.current .suit {
+            font-size: 24px;
+        }
+
+        .betting-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .participant-betting {
+	    background: rgba(255,255,255,0.1);
+	    border-radius: 8px;
+	    padding: 15px;
+	    margin-bottom: 15px;
+	    border: 2px solid rgba(255,255,255,0.3);
+	    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+	}
+
+        .participant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .participant-summary {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .participant-chips-summary {
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+	.participant-chips-summary h5 {
+	    margin-bottom: 10px;
+	}
+        
+	.chips-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .chips-count {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            min-width: 25px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .total-spent {
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 8px;
+            margin-top: 8px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .horse-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .horse-option {
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .horse-option:hover:not(.blocked) {
+            border-color: #ff6b35;
+        }
+
+        .horse-option.selected {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .horse-option.blocked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #666;
+        }
+
+        .horse-option-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .horse-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .horse-option-info {
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .chips-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .chips-input {
+            width: 60px;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            background: white;
+            color: #333;
+            text-align: center;
+        }
+
+        .amount-display {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn-small {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-small:hover {
+            background: #45a049;
+        }
+
+        .btn-small:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .participants-config {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .participant-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .participant-item input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: none;
+            background: white;
+            color: #333;
+        }
+
+        .results {
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+       
+        .log {
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .game-config {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .horses-container {
+                min-width: 700px;
+            }
+            
+            .horse {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+            
+            .horse-options {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-section {
+                flex-direction: column;
+            }
+        }
+	.winner {
+	    animation: pulse 2s infinite;
+	}
+
+	@keyframes pulse {
+	    0% { 
+	        box-shadow: 0 0 0 0 var(--horse-color, #FFD700);
+	        border: 3px solid var(--horse-color, #FFD700);
+	    }
+	    50% { 
+	        box-shadow: 0 0 0 8px transparent;
+	        border: 3px solid var(--horse-color, #FFD700);
+	    }
+	    100% { 
+	        box-shadow: 0 0 0 0 var(--horse-color, #FFD700);
+        	border: 3px solid var(--horse-color, #FFD700);
+	    }
+	}
+	#participantsBetting {
+	    display: flex;
+	    flex-wrap: wrap;
+	    gap: 10px;
+	}
+
+	#participantsBetting .participant-betting {
+	    flex: 0 0 calc(50% - 5px);
+	    min-width: 300px;
+	    margin: 0;
+	}
+
+	.mode-card:hover {
+	    border-color: #4CAF50 !important;
+	    transform: translateY(-5px);
+	    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+	}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐎 Corse di Cavalli</h1>
+            <p>MVP v1.0 - Prototipo Locale</p>
+            <div id="userInfo" style="display: none; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <span id="userEmail" style="color: #4CAF50; font-weight: bold;"></span>
+                <button id="logoutBtn" style="background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 14px;">Logout</button>
+            </div>
+        </div>
+
+        <!-- Lobby Multiplayer -->
+        <div id="lobby-container" style="display: none;"></div>
+
+        <!-- Selezione Modalità -->
+        <div class="game-mode-selection" id="gameModeSelection" style="display: none;">
+            <h2 style="text-align: center; margin-bottom: 30px;">Scegli la modalità di gioco</h2>
+            <div style="display: flex; gap: 30px; justify-content: center; flex-wrap: wrap;">
+                <div class="mode-card" onclick="selectGameMode('local')" style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 30px; width: 300px; cursor: pointer; transition: all 0.3s; border: 3px solid transparent;">
+                    <div style="font-size: 60px; text-align: center; margin-bottom: 20px;">🏠</div>
+                    <h3 style="text-align: center; margin-bottom: 15px;">Partita Locale</h3>
+                    <p style="text-align: center; color: #ccc; font-size: 14px;">Gestisci tutti i concorrenti da questo dispositivo. Ideale per giocare fisicamente con amici.</p>
+                </div>
+                <div class="mode-card" onclick="selectGameMode('multiplayer')" style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 30px; width: 300px; cursor: pointer; transition: all 0.3s; border: 3px solid transparent;">
+                    <div style="font-size: 60px; text-align: center; margin-bottom: 20px;">🌐</div>
+                    <h3 style="text-align: center; margin-bottom: 15px;">Multiplayer Online</h3>
+                    <p style="text-align: center; color: #ccc; font-size: 14px;">Invita altri giocatori online. Ogni giocatore usa il proprio dispositivo.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configurazione Gioco -->
+        <div class="game-config" id="gameConfig" style="display: none;">
+            <button class="btn" onclick="backToModeSelection()" style="background: #666; margin-bottom: 20px;">← Indietro</button>
+            <div class="config-item">
+                <label>Numero Cavalli</label>
+                <select id="numHorses">
+                    <option value="4">4 Cavalli</option>
+                    <option value="5">5 Cavalli</option>
+                    <option value="6">6 Cavalli</option>
+                    <option value="7">7 Cavalli</option>
+                    <option value="8">8 Cavalli</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>Numero Concorrenti</label>
+                <input type="number" id="numParticipants" value="3" min="1" max="20">
+            </div>
+            <div class="config-item">
+                <label>Valore Iniziale Fiches (€)</label>
+                <input type="number" id="initialChipValue" value="0.20" step="0.10" min="0.10" onchange="formatToTwoDecimals(this)">
+            </div>
+            <div class="config-item">
+                <label>Importo Max per Finestra (€)</label>
+                <input type="number" id="maxAmountPerWindow" value="2.00" step="0.10" min="0.10" onchange="formatToTwoDecimals(this)">
+            </div>
+            <div class="config-item">
+                <label>Distribuzione Premi</label>
+                <select id="prizeDistribution">
+                    <option value="1">Solo 1° posto</option>
+                    <option value="2" disabled>1° e 2° posto (min 5 cavalli)</option>
+                    <option value="3" disabled>1°, 2° e 3° posto (8 cavalli)</option>
+                </select>
+            </div>
+            <div style="width: 100%; text-align: center;">
+                <button class="btn" onclick="showParticipantsConfig()">Configura Concorrenti</button>
+            </div>
+        </div>
+
+        <!-- Configurazione Concorrenti -->
+        <div class="participants-config" id="participantsConfig" style="display: none;">
+            <h3>👥 Configura Concorrenti</h3>
+            <div class="participants-grid" id="participantsGrid"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="startGame()">Inizia Partita</button>
+            </div>
+        </div>
+
+        <!-- Pista di Corsa -->
+        <div class="racetrack" id="racetrack" style="display: none;">
+            <div class="track-header">
+                <h3>🏁 Pista di Corsa</h3>
+                <div class="game-info">
+                    <div class="info-item">
+                        <strong>Carte:</strong> <span id="cardsDrawn">0</span>/<span id="totalCards">36</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Finestra:</strong> <span id="currentWindow">1</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Montepremi:</strong> €<span id="totalPool">0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="horses-container">
+                <div id="horseTracks"></div>
+                <div class="finish-line"></div>
+            </div>
+        </div>
+
+        <!-- Sezione Carte -->
+        <div class="cards-section" id="cardsSection" style="display: none;">
+            <div class="current-card-display">
+                <h4>Carta Corrente:</h4>
+                <div class="card current" id="currentCard">
+                    <div class="value">-</div>
+                    <div class="suit">-</div>
+                </div>
+                <button class="btn" onclick="drawNextCard()" id="drawButton">Pesca Carta</button>
+            </div>
+            
+            <div class="drawn-cards">
+                <h4>Carte Estratte:</h4>
+                <div class="cards-stack" id="cardsStack"></div>
+            </div>
+        </div>
+
+        <!-- Pannello Scommesse -->
+        <div class="betting-panel" id="bettingPanel" style="display: none;">
+            <h3>💰 Acquisto Fiches - Finestra <span id="windowNumber">1</span></h3>
+            <p style="margin-bottom: 15px;">Importo massimo per finestra: €<span id="maxAmountDisplay">2.00</span> - Limite 3 cavalli per concorrente</p>
+            <div id="participantsBetting"></div>
+            <button class="btn" onclick="closeBettingWindow()" id="closeBettingBtn">Chiudi Finestra Scommesse</button>
+        </div>
+
+        <!-- Risultati -->
+        <div class="results" id="results" style="display: none;">
+            <h3>🏆 Risultati Gara</h3>
+            <div id="winnerInfo"></div>
+            <div id="payoutInfo"></div>
+            <button class="btn" onclick="resetGame()">Nuova Partita</button>
+        </div>
+
+        <!-- Log Eventi -->
+        <div class="log" id="gameLog" style="display: none;">
+            <h4>📋 Log Eventi</h4>
+            <div id="logEntries"></div>
+        </div>
+    </div>
+
+    <script>
+        var gameState = {
+            horses: [],
+            participants: [],
+            deck: [],
+            drawnCards: [],
+            currentCardIndex: 0,
+            currentWindow: 1,
+            isGameActive: false,
+            totalPool: 0,
+            gameConfig: {
+                numHorses: 4,
+                numParticipants: 3,
+                initialChipValue: 0.20,
+                maxAmountPerWindow: 2.00,
+                prizeDistribution: 1
+            }
+        };
+
+        var HORSE_DEFINITIONS = [
+		{ name: 'Spade', color: '#1565C0', suit: 'Spade', imagePath: '/cards/spade_', textColor: '#fff' },
+		{ name: 'Bastoni', color: '#4CAF50', suit: 'Bastoni', imagePath: '/cards/bastoni_', textColor: '#fff' },
+    		{ name: 'Denari', color: '#FFD700', suit: 'Denari', imagePath: '/cards/denari_', textColor: '#000' },
+    		{ name: 'Coppe', color: '#DC143C', suit: 'Coppe', imagePath: '/cards/coppe_', textColor: '#fff' },
+    		{ name: 'Spade Sic.', color: '#000000', suit: 'SpadeSic', imagePath: '/cards/spade_sic_', textColor: '#fff' },
+    		{ name: 'Bastoni Sic.', color: '#FFFFFF', suit: 'BastoniSic', imagePath: '/cards/bastoni_sic_', textColor: '#000' },
+    		{ name: 'Coppe Sic.', color: '#9C27B0', suit: 'CoppeSic', imagePath: '/cards/coppe_sic_', textColor: '#fff' },
+    		{ name: 'Denari Sic.', color: '#444444', suit: 'DenariSic', imagePath: '/cards/denari_sic_', textColor: '#fff' }
+	];
+
+        var CARD_MOVEMENT = {
+            'Asso': -1,
+            '2': 1, '3': 1, '4': 1, '5': 1, '6': 1, '7': 1,
+            'Fante': 3,
+            'Re': 3
+        };
+
+        var PRIZE_DISTRIBUTIONS = {
+            1: [100],
+            2: [60, 40],
+            3: [50, 30, 20]
+        };
+
+        var arrivalOrder = [];
+
+        function getChipPrice(horsePosition) {
+            var basePrice = gameState.gameConfig.initialChipValue;
+            var multiplier = 1;
+            
+            if (horsePosition <= 2) multiplier = 1;
+            else if (horsePosition <= 4) multiplier = 1.5;
+            else if (horsePosition <= 6) multiplier = 2;
+            else if (horsePosition === 7) multiplier = 2.5;
+            else return 0;
+            
+            var price = basePrice * multiplier;
+            
+            // Arrotonda a 0.10 più vicino
+            var rounded = Math.round(price * 10) / 10;
+            
+            // Se finisce con .x5, arrotonda per eccesso al .x0 successivo
+            var cents = Math.round(rounded * 100) % 10;
+            if (cents === 5) {
+                rounded = Math.ceil(rounded * 10) / 10;
+            }
+            
+            return rounded;
+        }
+	function getCardImagePath(suit, value) {
+    // Trova il cavallo corrispondente al seme
+    var horse = gameState.horses.find(function(h) { 
+        return h.suit === suit; 
+    });
+    
+    if (!horse) {
+        console.error('Cavallo non trovato per il seme:', suit);
+        return '';
+    }
+    
+    // Mappa i valori delle carte ai nomi dei file
+    var valueMap = {
+        'Asso': 'asso',
+        'Fante': 'donna', 
+        'Re': 're'
+    };
+    
+    // Se il valore è nei valori speciali, usa la mappa, altrimenti usa il valore così com'è
+    var fileName = valueMap[value] || value.toLowerCase();
+    
+    // Costruisci il percorso completo
+    var fullPath = horse.imagePath + fileName + '.png';
+    
+    return fullPath;
+}
+
+	function playSound(soundFile, volume = 1.0, gain = 4.0) {
+	    try {
+	        var audio = new Audio('sounds/' + soundFile);
+	        // Amplifica il volume ma non superare mai 1.0 (limite browser)
+	        audio.volume = Math.min(volume * gain, 1.0);
+	        audio.play().catch(function(error) {
+        	    console.log('Errore riproduzione audio:', error);
+	        });
+	    } catch (error) {
+        	console.log('Audio non supportato:', error);
+	    }
+	}
+
+        function canBetOnHorse(horse) {
+            return horse.position < 8;
+        }
+
+        function canParticipantBet(participantIndex) {
+            var participant = gameState.participants[participantIndex];
+            
+            var hasAlreadyBetThisWindow = participant.windowBets.some(function(bet) {
+                return bet.window === gameState.currentWindow;
+            });
+            if (hasAlreadyBetThisWindow) return false;
+            
+            var uniqueHorses = [];
+            participant.windowBets.forEach(function(bet) {
+                if (uniqueHorses.indexOf(bet.horseIndex) === -1) {
+                    uniqueHorses.push(bet.horseIndex);
+                }
+            });
+            if (uniqueHorses.length >= 3) return false;
+            
+            return true;
+        }
+
+        function canParticipantBetOnHorse(participantIndex, horseIndex) {
+    var participant = gameState.participants[participantIndex];
+    
+    // PRIMA controlla se ha già scommesso in questa finestra
+    var hasAlreadyBetThisWindow = participant.windowBets.some(function(bet) {
+        return bet.window === gameState.currentWindow;
+    });
+    if (hasAlreadyBetThisWindow) return false;
+    
+    // Se ha già scommesso su questo cavallo, può scommettere di nuovo
+    var hasAlreadyBetOnThisHorse = participant.windowBets.some(function(bet) {
+        return bet.horseIndex === horseIndex;
+    });
+    if (hasAlreadyBetOnThisHorse) return true;
+    
+    return canParticipantBet(participantIndex);
+        }
+
+        function updatePrizeDistributionOptions() {
+            var numHorses = parseInt(document.getElementById('numHorses').value);
+            var select = document.getElementById('prizeDistribution');
+            
+            for (var i = 0; i < select.options.length; i++) {
+                select.options[i].disabled = false;
+            }
+            
+            if (numHorses < 5) {
+                select.options[1].disabled = true;
+                select.options[2].disabled = true;
+                select.value = '1';
+            } else if (numHorses < 8) {
+                select.options[2].disabled = true;
+                if (select.value === '3') select.value = '2';
+            }
+        }
+
+        document.getElementById('numHorses').addEventListener('change', updatePrizeDistributionOptions);
+
+        function showParticipantsConfig() {
+            gameState.gameConfig.numHorses = parseInt(document.getElementById('numHorses').value);
+            gameState.gameConfig.numParticipants = parseInt(document.getElementById('numParticipants').value);
+            gameState.gameConfig.initialChipValue = parseFloat(document.getElementById('initialChipValue').value);
+            gameState.gameConfig.maxAmountPerWindow = parseFloat(document.getElementById('maxAmountPerWindow').value);
+            gameState.gameConfig.prizeDistribution = parseInt(document.getElementById('prizeDistribution').value);
+
+            document.getElementById('participantsConfig').style.display = 'block';
+            document.getElementById('maxAmountDisplay').textContent = gameState.gameConfig.maxAmountPerWindow.toFixed(2);
+            
+            createParticipantsInterface();
+        }
+
+        function createParticipantsInterface() {
+            var grid = document.getElementById('participantsGrid');
+            grid.innerHTML = '';
+
+            for (var i = 0; i < gameState.gameConfig.numParticipants; i++) {
+                var participantDiv = document.createElement('div');
+                participantDiv.className = 'participant-item';
+                participantDiv.innerHTML = '<h4>👤 Concorrente ' + (i + 1) + '</h4>' +
+                    '<input type="text" id="participant-' + i + '" placeholder="Nome concorrente" value="Giocatore ' + (i + 1) + '">';
+                grid.appendChild(participantDiv);
+            }
+        }
+
+        function startGame() {
+            gameState.participants = [];
+            for (var i = 0; i < gameState.gameConfig.numParticipants; i++) {
+                var name = document.getElementById('participant-' + i).value || 'Giocatore ' + (i + 1);
+                gameState.participants.push({
+                    id: i,
+                    name: name,
+                    windowBets: []
+                });
+            }
+
+            gameState.horses = [];
+            gameState.deck = [];
+            gameState.drawnCards = [];
+            gameState.currentCardIndex = 0;
+            gameState.currentWindow = 1;
+            gameState.totalPool = 0;
+            gameState.isGameActive = true;
+            arrivalOrder = [];
+
+            initializeHorses();
+            createNeapolitanDeck();
+            setupUI();
+            openBettingWindow();
+
+            addLogEntry('🏁 Nuova partita: ' + gameState.gameConfig.numHorses + ' cavalli, ' + gameState.participants.length + ' concorrenti');
+        }
+
+       function initializeHorses() {
+	    for (var i = 0; i < gameState.gameConfig.numHorses; i++) {
+        	var horseDef = HORSE_DEFINITIONS[i];
+	        gameState.horses.push({
+        	    id: i,
+	            name: horseDef.name,
+	            color: horseDef.color,
+	            suit: horseDef.suit,
+	            imagePath: horseDef.imagePath,  // ← Cambiato da symbol a imagePath
+	            textColor: horseDef.textColor,
+	            position: 0,
+	            totalBets: 0,
+	            totalChips: 0
+        	});
+	    }
+	}
+
+        function createNeapolitanDeck(seed) {
+            var suits = gameState.horses.map(function(horse) { return horse.suit; });
+            var values = ['Asso', '2', '3', '4', '5', '6', '7', 'Donna', 'Cavallo', 'Re'];
+
+            suits.forEach(function(suit) {
+                values.forEach(function(value) {
+                    // Salta la carta "Cavallo" - rappresenta il cavallo che corre
+                    if (value !== 'Cavallo') {
+                        gameState.deck.push({ suit: suit, value: value });
+                    }
+                });
+            });
+
+            // Usa un generatore di numeri pseudo-casuali con seed se fornito
+            var random = seed ? seededRandom(seed) : Math.random;
+
+            for (var i = gameState.deck.length - 1; i > 0; i--) {
+                var j = Math.floor(random() * (i + 1));
+                var temp = gameState.deck[i];
+                gameState.deck[i] = gameState.deck[j];
+                gameState.deck[j] = temp;
+            }
+
+            addLogEntry('🃏 Mazzo napoletano creato: ' + gameState.deck.length + ' carte (esclusi i 4 Cavalli)' + (seed ? ' [seed: ' + seed + ']' : ''));
+        }
+
+        // Generatore di numeri pseudo-casuali con seed
+        function seededRandom(seed) {
+            var m = 0x80000000; // 2^31
+            var a = 1103515245;
+            var c = 12345;
+            var state = seed ? seed : Math.floor(Math.random() * (m - 1));
+            return function() {
+                state = (a * state + c) % m;
+                return state / (m - 1);
+            };
+        }
+
+        function setupUI() {
+            document.getElementById('gameConfig').style.display = 'none';
+            document.getElementById('participantsConfig').style.display = 'none';
+            document.getElementById('racetrack').style.display = 'block';
+            document.getElementById('cardsSection').style.display = 'block';
+            document.getElementById('gameLog').style.display = 'block';
+            
+            createHorseTracks();
+            updateGameInfo();
+        }
+
+        function createHorseTracks() {
+            var container = document.getElementById('horseTracks');
+            container.innerHTML = '';
+
+            gameState.horses.forEach(function(horse, index) {
+                var track = document.createElement('div');
+                track.className = 'horse-track';
+                
+                var grid = document.createElement('div');
+                grid.className = 'track-grid';
+                
+	 for (var i = 0; i <= 10; i++) {
+	    var cell = document.createElement('div');
+	    cell.className = 'track-cell';
+	    // Aggiungi classe per strisce rosse alle caselle 8-10
+	    if (i >= 8 && i <= 10) {
+	        cell.classList.add('danger-zone');
+	    }
+	    // Mostra il numero solo per l'ultima riga (ultimo cavallo)
+	    if (index === gameState.horses.length - 1) {
+	        cell.setAttribute('data-step', i);
+	    }
+	    grid.appendChild(cell);
+	}
+		                
+                var victoryZone = document.createElement('div');
+                victoryZone.className = 'victory-zone';
+                victoryZone.textContent = 'META';
+                
+                var horseElement = document.createElement('div');
+                horseElement.className = 'horse';
+                horseElement.id = 'horse-' + index;
+                horseElement.style.backgroundColor = horse.color;
+                var textColor = horse.textColor || '#fff';
+                horseElement.style.color = textColor;
+                
+                var nameColor = '#fff';
+                if (horse.name === 'Denari' || horse.name === 'Bastoni Sic.') {
+                    nameColor = '#fff';
+                }
+                
+                var cardImagePath = horse.imagePath + 'cavallo.png';
+		horseElement.style.backgroundColor = horse.color;
+var imageStyle = horse.color === '#FFFFFF' ? 'width: 30px; height: auto; object-fit: contain; border: 1px solid #000000; border-radius: 3px;' : 'width: 30px; height: auto; object-fit: contain;';
+horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle + '">';
+                
+                track.appendChild(grid);
+                track.appendChild(victoryZone);
+                track.appendChild(horseElement);
+                container.appendChild(track);
+            });
+        }
+
+        function openBettingWindow() {
+            document.getElementById('bettingPanel').style.display = 'block';
+            document.getElementById('windowNumber').textContent = gameState.currentWindow;
+            document.getElementById('drawButton').disabled = true;
+            createBettingInterface();
+            addLogEntry('💰 Finestra scommesse #' + gameState.currentWindow + ' aperta');
+        }
+
+        function getParticipantChipsForHorse(participantIndex, horseIndex) {
+            var participant = gameState.participants[participantIndex];
+            return participant.windowBets
+                .filter(function(bet) { return bet.horseIndex === horseIndex; })
+                .reduce(function(total, bet) { return total + bet.chips; }, 0);
+        }
+
+        function getParticipantTotalSpent(participantIndex) {
+            var participant = gameState.participants[participantIndex];
+            return participant.windowBets.reduce(function(total, bet) { return total + bet.amount; }, 0);
+        }
+
+        function createBettingInterface() {
+            var container = document.getElementById('participantsBetting');
+            container.innerHTML = '';
+
+            gameState.participants.forEach(function(participant, participantIndex) {
+                var canBetGeneral = canParticipantBet(participantIndex);
+                var participantDiv = document.createElement('div');
+                participantDiv.className = 'participant-betting';
+                
+                var uniqueHorses = [];
+                participant.windowBets.forEach(function(bet) {
+                    if (uniqueHorses.indexOf(bet.horseIndex) === -1) {
+                        uniqueHorses.push(bet.horseIndex);
+                    }
+                });
+                var statusText = canBetGeneral ? 
+                    'Cavalli scommessi: ' + uniqueHorses.length + '/3' : 
+                    (uniqueHorses.length >= 3 ? 'Limite 3 cavalli raggiunto' : 'Già scommesso in questa finestra');
+                
+                var headerHtml = '<div class="participant-header">' +
+                    '<span>👤 ' + participant.name + '</span>' +
+                    '<div class="participant-summary">' +
+                    '<span id="summary-' + participantIndex + '">' + statusText + '</span>' +
+                    '</div></div>';
+
+                var summaryHtml = '<div class="participant-chips-summary">' +
+                    '<h5>🎯 Riepilogo Fiches:</h5>';
+                
+                gameState.horses.forEach(function(horse, horseIndex) {
+                    var participantChips = getParticipantChipsForHorse(participantIndex, horseIndex);
+                    summaryHtml += '<div class="chips-row">' +
+                        '<span><div class="horse-color" style="background-color: ' + horse.color + '; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;"></div>' +
+                        horse.name + '</span>' +
+                        '<span class="chips-count">' + participantChips + '</span>' +
+                        '</div>';
+                });
+                
+                summaryHtml += '<div class="total-spent">Totale speso: €' + getParticipantTotalSpent(participantIndex).toFixed(2) + '</div></div>';
+
+                var optionsHtml = '<div class="horse-options" id="horses-' + participantIndex + '">';
+                
+                gameState.horses.forEach(function(horse, horseIndex) {
+                    var chipPrice = getChipPrice(horse.position);
+                    var canBetHorse = canBetOnHorse(horse) && canParticipantBetOnHorse(participantIndex, horseIndex);
+                    var hasAlreadyBetOnThisHorse = participant.windowBets.some(function(bet) {
+                        return bet.horseIndex === horseIndex;
+                    });
+                    var shouldEnable = canBetHorse || hasAlreadyBetOnThisHorse;
+                    
+                    optionsHtml += '<div class="horse-option ' + (shouldEnable ? '' : 'blocked') + '" ' +
+                        'id="option-' + participantIndex + '-' + horseIndex + '" ' +
+                        'onclick="' + (shouldEnable ? 'selectHorse(' + participantIndex + ', ' + horseIndex + ')' : '') + '">' +
+                        '<div class="horse-option-header">' +
+                        '<div class="horse-color" style="background-color: ' + horse.color + ';"></div>' +
+                        '<span>' + horse.name + ' <img src="' + horse.imagePath + 'cavallo.png" style="width: 16px; height: auto; vertical-align: middle;"></span>' +
+                        '</div>' +
+                        '<div class="horse-option-info">' +
+                        '<span>Posizione: ' + horse.position + '/10</span>' +
+                        '<span>Prezzo: €' + chipPrice.toFixed(2) + '</span>' +
+                        '</div>' +
+                        '</div>';
+                });
+                
+                optionsHtml += '</div>';
+
+                var controlsHtml = '<div class="chips-control">' +
+                    '<label>Fiches:</label>' +
+                    '<input type="number" class="chips-input" id="chips-' + participantIndex + '" min="1" max="50" placeholder="N°" oninput="updateAmount(' + participantIndex + ')">' +
+                    '<div class="amount-display" id="amount-' + participantIndex + '">€0.00</div>' +
+                    '<button class="btn-small" id="buy-btn-' + participantIndex + '" onclick="placeBet(' + participantIndex + ')" disabled>Compra</button>' +
+                    '</div>';
+
+                participantDiv.innerHTML = headerHtml + summaryHtml + optionsHtml + controlsHtml;
+                container.appendChild(participantDiv);
+            });
+        }
+
+        function selectHorse(participantIndex, horseIndex) {
+            var horse = gameState.horses[horseIndex];
+            var participant = gameState.participants[participantIndex];
+            
+            if (!canBetOnHorse(horse) || !canParticipantBetOnHorse(participantIndex, horseIndex)) return;
+
+            gameState.horses.forEach(function(h, i) {
+                var option = document.getElementById('option-' + participantIndex + '-' + i);
+                if (option) option.classList.remove('selected');
+            });
+
+            var option = document.getElementById('option-' + participantIndex + '-' + horseIndex);
+            if (option) option.classList.add('selected');
+
+            participant.selectedHorse = horseIndex;
+            updateAmount(participantIndex);
+            updateParticipantSummary(participantIndex);
+        }
+
+        function updateAmount(participantIndex) {
+            var participant = gameState.participants[participantIndex];
+            var chipsInput = document.getElementById('chips-' + participantIndex);
+            var amountDisplay = document.getElementById('amount-' + participantIndex);
+            var buyButton = document.getElementById('buy-btn-' + participantIndex);
+
+            if (participant.selectedHorse === undefined) {
+                amountDisplay.textContent = 'Seleziona cavallo';
+                buyButton.disabled = true;
+                return;
+            }
+
+            var chips = parseInt(chipsInput.value) || 0;
+            var horse = gameState.horses[participant.selectedHorse];
+            var chipPrice = getChipPrice(horse.position);
+            var amount = chips * chipPrice;
+
+            amountDisplay.textContent = '€' + amount.toFixed(2);
+            
+            var exceedsLimit = amount > gameState.gameConfig.maxAmountPerWindow;
+            
+            var hasAlreadyBetOnThisHorse = participant.windowBets.some(function(bet) {
+                return bet.horseIndex === participant.selectedHorse;
+            });
+            
+            var canPurchase = hasAlreadyBetOnThisHorse || 
+                             (canBetOnHorse(horse) && canParticipantBetOnHorse(participantIndex, participant.selectedHorse));
+            
+            buyButton.disabled = chips <= 0 || exceedsLimit || !canPurchase;
+
+            if (exceedsLimit) {
+                amountDisplay.style.color = '#ff4444';
+                amountDisplay.textContent += ' (LIMITE!)';
+            } else if (!canPurchase) {
+                amountDisplay.style.color = '#ff4444';
+                amountDisplay.textContent += ' (NON DISPONIBILE!)';
+            } else {
+                amountDisplay.style.color = '#fff';
+            }
+        }
+
+        function updateParticipantSummary(participantIndex) {
+            var participant = gameState.participants[participantIndex];
+            var summary = document.getElementById('summary-' + participantIndex);
+
+            if (participant.selectedHorse !== undefined) {
+                var horse = gameState.horses[participant.selectedHorse];
+                var chipPrice = getChipPrice(horse.position);
+                summary.textContent = horse.name + ' selezionato - €' + chipPrice.toFixed(2) + '/fiches';
+            } else {
+                summary.textContent = 'Nessuna selezione';
+            }
+        }
+
+        function placeBet(participantIndex) {
+            var participant = gameState.participants[participantIndex];
+            var chipsInput = document.getElementById('chips-' + participantIndex);
+            var chips = parseInt(chipsInput.value);
+
+            if (participant.selectedHorse === undefined) {
+                alert('Seleziona prima un cavallo!');
+                return;
+            }
+
+            var horse = gameState.horses[participant.selectedHorse];
+            if (!canBetOnHorse(horse)) {
+                alert('Questo cavallo non accetta più scommesse!');
+                return;
+            }
+
+            var chipPrice = getChipPrice(horse.position);
+            var amount = chips * chipPrice;
+
+            if (amount > gameState.gameConfig.maxAmountPerWindow) {
+                alert('Importo massimo per finestra: €' + gameState.gameConfig.maxAmountPerWindow.toFixed(2));
+                return;
+            }
+
+            participant.windowBets.push({
+                window: gameState.currentWindow,
+                horseIndex: participant.selectedHorse,
+                chips: chips,
+                amount: amount,
+                chipPrice: chipPrice
+            });
+
+            horse.totalChips += chips;
+            horse.totalBets += amount;
+            gameState.totalPool += amount;
+
+            chipsInput.value = '';
+            participant.selectedHorse = undefined;
+
+            createBettingInterface();
+            updateGameInfo();
+
+            addLogEntry('💰 ' + participant.name + ': ' + chips + ' fiches su ' + horse.name + ' (€' + amount.toFixed(2) + ' - €' + chipPrice.toFixed(2) + '/fiches)');
+        }
+
+        function closeBettingWindow() {
+            document.getElementById('bettingPanel').style.display = 'none';
+            document.getElementById('drawButton').disabled = false;
+            addLogEntry('🔒 Finestra scommesse #' + gameState.currentWindow + ' chiusa');
+            
+            if (gameState.currentWindow === 1) {
+                gameState.participants.forEach(function(participant) {
+                    participant.selectedHorse = undefined;
+                });
+            }
+        }
+
+        function isRaceFinished() {
+            var prizePositions = gameState.gameConfig.prizeDistribution;
+            var finishedHorses = gameState.horses.filter(function(horse) {
+                return horse.position > 10;
+            });
+            return finishedHorses.length >= prizePositions;
+        }
+
+        function drawNextCard() {
+            if (gameState.currentCardIndex >= gameState.deck.length) {
+                endGame();
+                return;
+            }
+
+            var card = gameState.deck[gameState.currentCardIndex];
+            playSound('card_flip.wav');
+	    gameState.drawnCards.push(card);
+            gameState.currentCardIndex++;
+
+            displayCurrentCard(card);
+            addCardToStack(card);
+
+            var horse = findHorseByCard(card);
+            if (horse) {
+                var movement = CARD_MOVEMENT[card.value];
+                var oldPosition = horse.position;
+                
+                if (oldPosition > 10 && movement < 0) {
+                    addLogEntry('🃏 ' + card.value + ' di ' + card.suit + ' → ' + horse.name + ': Già oltre il traguardo, nessun movimento');
+                } else {
+            var oldPosition = horse.position;
+		    horse.position = Math.max(0, horse.position + movement);
+
+		// Riproduci suono in base al tipo di carta
+		if (card.value === 'Asso') {
+		    playSound('ace_sound.wav');
+		} else if (card.value === 'Re' || card.value === 'Fante') {
+		    playSound('power_move.wav');
+		} else {
+		    playSound('horse_move.wav');
+		}
+
+		animateHorse(horse.id, horse.position);
+		updateHorseBlockStatus(horse);
+                    addLogEntry('🃏 ' + card.value + ' di ' + card.suit + ' → ' + horse.name + ': ' + oldPosition + '→' + horse.position + ' (' + (movement > 0 ? '+' : '') + movement + ')');
+                }
+                
+                if (isRaceFinished()) {
+                    setTimeout(function() { endGame(); }, 1000);
+                    return;
+                }
+            }
+
+            if ((gameState.currentCardIndex === 5) || 
+                (gameState.currentCardIndex > 5 && (gameState.currentCardIndex % 5 === 0))) {
+                if (gameState.currentCardIndex < gameState.deck.length) {
+                    setTimeout(function() {
+                        gameState.currentWindow++;
+                        openBettingWindow();
+                    }, 1500);
+                }
+            }
+
+            updateGameInfo();
+        }
+
+        function updateHorseBlockStatus(horse) {
+   	   if (horse.position >= 8) {
+	       addLogEntry('🚫 ' + horse.name + ' non accetta più scommesse (posizione ' + horse.position + ')');
+	   } else {
+               addLogEntry('✅ ' + horse.name + ' accetta di nuovo scommesse (posizione ' + horse.position + ')');
+	   }
+	}
+
+        function displayCurrentCard(card) {
+	    var cardElement = document.getElementById('currentCard');
+	    var cardImagePath = getCardImagePath(card.suit, card.value);
+
+	    // Forza le dimensioni del contenitore
+	    cardElement.style.width = '65px';
+	    cardElement.style.height = '90px';
+	    cardElement.style.padding = '2px';
+
+	    // Nascondi il testo e mostra l'immagine della carta
+	    cardElement.querySelector('.value').style.display = 'none';
+	cardElement.querySelector('.suit').innerHTML = '<img src="' + cardImagePath + '" style="width: 100%; height: 100%; object-fit: contain;">';
+	}
+
+        function addCardToStack(card) {
+            var stack = document.getElementById('cardsStack');
+
+            // Aggiungi uno spazio ogni 5 carte (alla 6a, 11a, 16a carta, ecc.)
+            var currentLength = gameState.drawnCards.length;
+            console.log('🃏 Aggiunta carta #' + currentLength + ', controllo spazio:', currentLength > 5, 'e', currentLength % 5 === 1);
+            if (currentLength > 5 && currentLength % 5 === 1) {
+                console.log('✅ Aggiungo spazio!');
+                var spacer = document.createElement('div');
+                spacer.style.width = '30px';
+                spacer.style.height = '90px';
+                spacer.style.flexShrink = '0';
+                stack.appendChild(spacer);
+            }
+
+            var cardElement = document.createElement('div');
+            cardElement.className = 'card';
+            var cardImagePath = getCardImagePath(card.suit, card.value);
+cardElement.innerHTML = '<img src="' + cardImagePath + '" style="width: 100%; height: 100%; object-fit: contain; display: block;">';
+            stack.appendChild(cardElement);
+            stack.scrollTop = stack.scrollHeight;
+        }
+
+        function getSuitSymbol(suit) {
+    		var horse = gameState.horses.find(function(h) { return h.suit === suit; });
+		if (horse) {
+			return '<img src="' + horse.imagePath + 'cavallo.png" style="width: 16px; height: auto; vertical-align: middle;">';
+    }
+    return '❓';
+}
+
+        function findHorseByCard(card) {
+            return gameState.horses.find(function(horse) { return horse.suit === card.suit; });
+        }
+
+        function animateHorse(horseId, newPosition) {
+    var horseElement = document.getElementById('horse-' + horseId);
+    
+    // Suono di tensione quando entra negli ultimi 3 passi (8, 9, 10)
+    var horse = gameState.horses[horseId];
+    var oldPosition = horse.position;
+    if (oldPosition < 8 && newPosition >= 8 && newPosition <= 10) {
+        playSound('tension.wav');
+    }
+    
+    var trackGrid = horseElement.parentNode.querySelector('.track-grid');
+    var trackWidth = trackGrid.offsetWidth;
+    
+    var pixelPosition;
+    
+    if (newPosition > 10) {
+        if (arrivalOrder.indexOf(horseId) === -1) {
+            arrivalOrder.push(horseId);
+            // Suono di vittoria solo per il primo arrivo di questo cavallo
+            playSound('victory.wav');
+        }
+        
+        var victoryZoneLeft = trackWidth + 10;
+        pixelPosition = victoryZoneLeft + 15;
+        
+        setTimeout(function() {
+          addVictoryMedal(horseId);
+	}, 800);
+    } else {
+        var cellWidth = trackWidth / 11;
+        pixelPosition = (cellWidth * newPosition) + (cellWidth / 2) - (45/2);
+    }
+    
+    horseElement.style.transform = 'translateX(' + pixelPosition + 'px) translateY(-50%)';
+    
+    if (newPosition > 0) {
+        horseElement.style.boxShadow = '0 6px 12px rgba(255,107,53,0.6)';
+        setTimeout(function() {
+            horseElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+        }, 800);
+    }
+}
+
+        function addVictoryMedal(horseId) {
+            var horseElement = document.getElementById('horse-' + horseId);
+            if (horseElement.querySelector('.victory-medal')) return;
+            
+            var position = arrivalOrder.indexOf(horseId) + 1;
+            
+            if (position <= gameState.gameConfig.prizeDistribution) {
+                var medal = document.createElement('div');
+                medal.className = 'victory-medal';
+                var medalColor = position === 1 ? '#FFD700' : position === 2 ? '#C0C0C0' : '#CD7F32';
+                medal.style.cssText = 'position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; ' +
+                    'background: ' + medalColor + '; border-radius: 50%; display: flex; align-items: center; ' +
+                    'justify-content: center; font-size: 12px; font-weight: bold; color: #000; ' +
+                    'border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.3);';
+                medal.textContent = position;
+                horseElement.appendChild(medal);
+            }
+        }
+
+        function updateGameInfo() {
+            document.getElementById('cardsDrawn').textContent = gameState.currentCardIndex;
+            document.getElementById('totalCards').textContent = gameState.deck.length;
+            document.getElementById('currentWindow').textContent = gameState.currentWindow;
+            document.getElementById('totalPool').textContent = gameState.totalPool.toFixed(2);
+        }
+
+        function getRankedHorses() {
+            var finishedHorses = [];
+            var unfinishedHorses = [];
+            
+            gameState.horses.forEach(function(horse) {
+                if (horse.position > 10) {
+                    finishedHorses.push(horse);
+                } else {
+                    unfinishedHorses.push(horse);
+                }
+            });
+            
+            finishedHorses.sort(function(a, b) {
+    		if (b.position !== a.position) return b.position - a.position;
+    		// Se hanno stessa posizione, ordina per arrivo cronologico
+		var orderA = arrivalOrder.indexOf(a.id);
+    		var orderB = arrivalOrder.indexOf(b.id);
+    		return orderA - orderB;
+            });
+            
+            unfinishedHorses.sort(function(a, b) {
+                return b.position - a.position;
+            });
+            
+            return finishedHorses.concat(unfinishedHorses);
+        }
+
+        function endGame() {
+            gameState.isGameActive = false;
+            
+            var rankedHorses = getRankedHorses();
+            var finishedHorses = rankedHorses.filter(function(horse) {
+                return horse.position > 10;
+            });
+
+            document.getElementById('cardsSection').style.display = 'none';
+            document.getElementById('bettingPanel').style.display = 'none';
+            
+            displayResults(rankedHorses);
+            
+           var prizePositions = gameState.gameConfig.prizeDistribution;
+	   for (var i = 0; i < Math.min(prizePositions, finishedHorses.length); i++) {
+	    var horse = finishedHorses[i];
+	    var horseElement = document.getElementById('horse-' + horse.id);
+	    if (horseElement) {
+	        horseElement.classList.add('winner');
+	        horseElement.style.setProperty('--horse-color', horse.color);
+	    }
+	   }
+
+	   addLogEntry('🏆 GARA COMPLETATA! Primi ' + Math.min(prizePositions, finishedHorses.length) + ' posti assegnati');
+        }
+
+        function displayResults(rankedHorses) {
+            var resultsDiv = document.getElementById('results');
+            var winnerInfo = document.getElementById('winnerInfo');
+            var payoutInfo = document.getElementById('payoutInfo');
+
+            var prizePositions = gameState.gameConfig.prizeDistribution;
+            var percentages = PRIZE_DISTRIBUTIONS[prizePositions];
+            var finishedHorses = rankedHorses.filter(function(horse) {
+                return horse.position > 10;
+            });
+
+            var winnerHtml = '<h4>🏆 Classifica Finale:</h4>';
+            
+            if (finishedHorses.length > 0) {
+                winnerHtml += '<div style="background: rgba(255,215,0,0.2); padding: 15px; margin: 10px 0; border-radius: 10px; border: 2px solid #FFD700;">';
+                winnerHtml += '<h5 style="text-align: center; color: #FFD700; margin-bottom: 10px;">🏁 PODIO 🏁</h5>';
+                
+                for (var i = 0; i < Math.min(prizePositions, finishedHorses.length); i++) {
+                    var horse = finishedHorses[i];
+                    var position = i + 1;
+                    var percentage = percentages[i];
+                    var medalEmoji = position === 1 ? '🥇' : position === 2 ? '🥈' : '🥉';
+                    
+var borderStyle = horse.color === '#FFFFFF' ? 
+    'border: 3px solid ' + horse.color + '; box-shadow: 0 0 0 1px #000000;' : 
+    'border: 3px solid ' + horse.color + ';';
+		    winnerHtml += '<div style="display: inline-block; margin: 5px 10px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; text-align: center; border: 3px solid ' + horse.color + ';">';
+		    winnerHtml += '<div style="font-size: 24px;">' + medalEmoji + '</div>';
+		    winnerHtml += '<div style="font-weight: bold;">' + position + '° ' + horse.name + '</div>';
+		    var imageStyle = horse.color === '#FFFFFF' ? 
+    'width: 20px; height: auto; vertical-align: middle; border: 1px solid #000000; border-radius: 3px;' : 
+    'width: 20px; height: auto; vertical-align: middle;';
+winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'cavallo.png" style="' + imageStyle + '"></div>';
+		    winnerHtml += '<div style="font-size: 12px; color: #FFD700;">' + percentage + '% premio</div>';
+		    winnerHtml += '</div>';
+                }
+                winnerHtml += '</div>';
+            }
+            
+            rankedHorses.forEach(function(horse, index) {
+                var position = index + 1;
+                var isFinished = horse.position > 10;
+                var isWinner = position <= prizePositions && isFinished;
+                
+                winnerHtml += '<div style="background: rgba(255,255,255,0.1); padding: 8px; margin: 5px 0; border-radius: 5px; ' + (isWinner ? 'border-left: 4px solid #4CAF50;' : (isFinished ? 'border-left: 4px solid #FFA500;' : '')) + '">' +
+                    '<span style="font-weight: bold;">' + position + 'º posto: ' + horse.name + ' <img src="' + horse.imagePath + 'cavallo.png" style="width: 20px; height: auto; vertical-align: middle;"></span>' +
+                    '<span style="float: right;">' +
+                    (isFinished ? '✅ Arrivato (' + horse.position + ' passi)' : '❌ Non arrivato (' + horse.position + '/10)') +
+                    '</span></div>';
+            });
+
+            winnerInfo.innerHTML = winnerHtml;
+
+            var allParticipantsResults = calculateAllParticipantsResults(rankedHorses, prizePositions);
+            
+            if (allParticipantsResults.some(function(r) { return r.totalWin > 0; })) {
+                var payoutHtml = '<h4>💸 Risultati Completi:</h4><div style="margin: 15px 0;">';
+                var totalPayout = 0;
+                
+                allParticipantsResults.forEach(function(result) {
+                    var profit = result.totalWin - result.totalInvest;
+                    var isWinner = result.totalWin > 0;
+                    
+                    payoutHtml += '<div style="background: rgba(255,255,255,0.1); padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid ' + (isWinner ? '#4CAF50' : '#f44336') + ';">' +
+                        '<strong style="font-size: 16px;">' + (isWinner ? '🏆' : '💔') + ' ' + result.participantName + '</strong><br><br>';
+                    
+                    payoutHtml += '<div style="margin: 10px 0;"><strong>📊 Fiches per Cavallo:</strong><br>';
+                    gameState.horses.forEach(function(horse) {
+                        var participantChips = getParticipantChipsForHorse(result.participantIndex, horse.id);
+                        if (participantChips > 0) {
+                            payoutHtml += '<span style="display: inline-block; margin: 3px 8px; padding: 4px 8px; background: ' + horse.color + '; color: ' + (horse.color === '#FFFFFF' || horse.color === '#FFD700' ? '#000' : '#fff') + '; border-radius: 12px; font-size: 13px;">' +
+                           '<img src="' + horse.imagePath + 'cavallo.png" style="width: 16px; height: auto; vertical-align: middle;"> ' + participantChips + '/' + horse.totalChips + '</span>';
+                        }
+                    });
+                    payoutHtml += '</div>';
+                    
+                    payoutHtml += 'Finestre attive: ' + result.activeWindows + '<br>' +
+                        'Investimento totale: €' + result.totalInvest.toFixed(2) + '<br>' +
+                        (isWinner ? 'Fiches vincenti: ' + result.winningChips + '<br>' : '') +
+                        'Vincita: €' + result.totalWin.toFixed(2) + '<br>' +
+                        '<span style="color: ' + (profit >= 0 ? '#4CAF50' : '#f44336') + '; font-weight: bold; font-size: 14px;">' +
+                        (profit >= 0 ? 'PROFITTO' : 'PERDITA') + ': €' + Math.abs(profit).toFixed(2) +
+                        (result.totalInvest > 0 ? (profit >= 0 ? ' (+' + ((profit/result.totalInvest)*100).toFixed(1) + '%)' : ' (-' + ((Math.abs(profit)/result.totalInvest)*100).toFixed(1) + '%)') : '') +
+                        '</span></div>';
+                    totalPayout += result.totalWin;
+                });
+                
+                payoutHtml += '</div><p><strong>Totale distribuito: €' + totalPayout.toFixed(2) + ' / €' + gameState.totalPool.toFixed(2) + '</strong></p>';
+                payoutInfo.innerHTML = payoutHtml;
+            } else {
+                payoutInfo.innerHTML = '<h4>😢 Nessuna vincita - Il banco tiene tutto!</h4>';
+            }
+
+            resultsDiv.style.display = 'block';
+        }
+
+        function calculateAllParticipantsResults(rankedHorses, prizePositions) {
+            var results = [];
+            var percentages = PRIZE_DISTRIBUTIONS[prizePositions];
+            var finishedHorses = rankedHorses.filter(function(horse) {
+                return horse.position > 10;
+            });
+            
+            gameState.participants.forEach(function(participant, participantIndex) {
+                var totalInvest = participant.windowBets.reduce(function(sum, bet) {
+                    return sum + bet.amount;
+                }, 0);
+                var totalChips = participant.windowBets.reduce(function(sum, bet) {
+                    return sum + bet.chips;
+                }, 0);
+                var uniqueWindows = [];
+                participant.windowBets.forEach(function(bet) {
+                    if (uniqueWindows.indexOf(bet.window) === -1) {
+                        uniqueWindows.push(bet.window);
+                    }
+                });
+                var activeWindows = uniqueWindows.length;
+                
+                var totalWin = 0;
+                var winningChips = 0;
+                
+                for (var pos = 0; pos < Math.min(prizePositions, finishedHorses.length); pos++) {
+                    var horse = finishedHorses[pos];
+                    var positionBets = participant.windowBets.filter(function(bet) {
+                        return bet.horseIndex === horse.id;
+                    });
+                    var positionChips = positionBets.reduce(function(sum, bet) {
+                        return sum + bet.chips;
+                    }, 0);
+                    
+                    if (positionChips > 0 && horse.totalChips > 0) {
+                        var proportion = positionChips / horse.totalChips;
+                        var positionPrize = gameState.totalPool * (percentages[pos] / 100);
+                        totalWin += positionPrize * proportion;
+                        winningChips += positionChips;
+                    }
+                }
+                
+                results.push({
+                    participantName: participant.name,
+                    participantIndex: participantIndex,
+                    totalInvest: totalInvest,
+                    totalChips: totalChips,
+                    winningChips: winningChips,
+                    activeWindows: activeWindows,
+                    totalWin: totalWin,
+                    profit: totalWin - totalInvest
+                });
+            });
+            
+            results.sort(function(a, b) {
+                if (a.totalWin > 0 && b.totalWin === 0) return -1;
+                if (a.totalWin === 0 && b.totalWin > 0) return 1;
+                return b.profit - a.profit;
+            });
+            
+            return results;
+        }
+
+        function resetGame() {
+            gameState = {
+                horses: [],
+                participants: [],
+                deck: [],
+                drawnCards: [],
+                currentCardIndex: 0,
+                currentWindow: 1,
+                isGameActive: false,
+                totalPool: 0,
+                gameConfig: {
+                    numHorses: 4,
+                    numParticipants: 3,
+                    initialChipValue: 0.20,
+                    maxAmountPerWindow: 2.00,
+                    prizeDistribution: 1
+                }
+            };
+
+            arrivalOrder = [];
+
+            document.getElementById('gameConfig').style.display = 'block';
+            document.getElementById('participantsConfig').style.display = 'none';
+            document.getElementById('racetrack').style.display = 'none';
+            document.getElementById('cardsSection').style.display = 'none';
+            document.getElementById('bettingPanel').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('gameLog').style.display = 'none';
+
+            document.getElementById('logEntries').innerHTML = '';
+            document.getElementById('cardsStack').innerHTML = '';
+
+            updatePrizeDistributionOptions();
+            addLogEntry('🔄 Gioco resettato - Pronto per una nuova partita!');
+        }
+
+        function addLogEntry(message) {
+            var logEntries = document.getElementById('logEntries');
+            var entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logEntries.appendChild(entry);
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePrizeDistributionOptions();
+            addLogEntry('🎮 Sistema caricato - Configura la partita!');
+        });
+	function formatToTwoDecimals(input) {
+            var value = parseFloat(input.value);
+            if (!isNaN(value)) {
+                input.value = value.toFixed(2);
+            }
+        }
+
+        async function selectGameMode(mode) {
+            if (mode === 'local') {
+                document.getElementById('gameModeSelection').style.display = 'none';
+                document.getElementById('gameConfig').style.display = 'block';
+                addLogEntry('🎮 Modalità locale selezionata');
+            } else if (mode === 'multiplayer') {
+                document.getElementById('gameModeSelection').style.display = 'none';
+                document.getElementById('lobby-container').style.display = 'block';
+                // Importa e mostra la lobby
+                const { showLobby } = await import('./src/lobby-ui.js');
+                await showLobby();
+                addLogEntry('🌐 Modalità multiplayer selezionata');
+            }
+        }
+
+        function backToModeSelection() {
+            document.getElementById('gameConfig').style.display = 'none';
+            document.getElementById('participantsConfig').style.display = 'none';
+            document.getElementById('lobby-container').style.display = 'none';
+            document.getElementById('gameModeSelection').style.display = 'block';
+            addLogEntry('🔙 Ritorno alla selezione modalità');
+        }
+    </script>
+<script type="module" src="/src/main.js"></script>
+
+</body>
+</html>
