@@ -941,13 +941,13 @@ async function updateWaitingPlayersList(gameId) {
 
   console.log('🔍 Caricamento partecipanti per game:', gameId);
 
-  // Prova con il constraint name corretto
+  // Prova con sintassi semplificata
   const { data: participants, error } = await supabase
     .from('game_participants')
-    .select('user_id, profiles!game_participants_user_id_profiles_fkey(username)')
+    .select('user_id, profiles(username)')
     .eq('game_id', gameId);
 
-  console.log('🔍 Partecipanti:', participants);
+  console.log('🔍 Partecipanti RAW:', JSON.stringify(participants, null, 2));
   console.log('🔍 Errore:', error);
 
   if (error) {
