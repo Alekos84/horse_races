@@ -1330,14 +1330,7 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
                 return;
             }
 
-            // PROTEZIONE 2: Controlla se abbiamo già pescato 5 carte (o multipli)
-            var cardsInCurrentWindow = gameState.currentCardIndex % 5;
-            if (cardsInCurrentWindow === 0 && gameState.currentCardIndex > 0) {
-                console.log('⚠️ Finestra completa, impossibile pescare altra carta');
-                return;
-            }
-
-            // PROTEZIONE 3: Disabilita immediatamente il bottone
+            // PROTEZIONE 2: Disabilita immediatamente il bottone
             var drawButton = document.getElementById('drawButton');
             if (drawButton) {
                 drawButton.disabled = true;
