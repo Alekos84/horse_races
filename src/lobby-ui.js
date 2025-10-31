@@ -7,6 +7,7 @@ import { openMultiplayerBetting, updatePlayersStatus, startBettingCountdown, upd
 let currentGameId = null;
 let gameSubscription = null;
 let bettingSubscription = null;
+let waitingRoomRefreshInterval = null;
 
 // Helper: assicura che il profilo dell'utente esista nel database
 async function ensureUserProfile(user) {
@@ -436,6 +437,14 @@ export async function joinRoom(gameId) {
         const waitingOverlay = document.getElementById('waiting-room-overlay');
         if (waitingOverlay) {
           console.log('🎮 Partita avviata, chiudo sala d\'attesa');
+
+          // Ferma auto-refresh quando la partita inizia
+          if (waitingRoomRefreshInterval) {
+            clearInterval(waitingRoomRefreshInterval);
+            waitingRoomRefreshInterval = null;
+            console.log('⏹️ Auto-refresh sala d\'attesa fermato (partita iniziata)');
+          }
+
           waitingOverlay.remove();
 
           // MOSTRA tutti gli elementi del gioco
@@ -914,12 +923,26 @@ async function showWaitingRoomModal(gameId, creatorId, currentUserId) {
 
   // Listener per bottone "Esci"
   document.getElementById('leave-waiting-room').addEventListener('click', () => {
+    // Ferma auto-refresh quando si esce
+    if (waitingRoomRefreshInterval) {
+      clearInterval(waitingRoomRefreshInterval);
+      waitingRoomRefreshInterval = null;
+      console.log('⏹️ Auto-refresh sala d\'attesa fermato (uscita manuale)');
+    }
     waitingOverlay.remove();
     leaveRoom();
   });
 
   // Sottoscrivi agli aggiornamenti per aggiornare la lista giocatori
   subscribeToWaitingRoom(gameId);
+
+  // AUTO-REFRESH ogni 15 secondi come backup al realtime
+  waitingRoomRefreshInterval = setInterval(async () => {
+    console.log('🔄 Auto-refresh sala d\'attesa (ogni 15s)');
+    await updateWaitingPlayersList(gameId);
+  }, 15000);
+
+  console.log('✅ Auto-refresh sala d\'attesa attivato (ogni 15 secondi)');
 }
 
 // Aggiorna la lista dei giocatori nella sala d'attesa
