@@ -1096,6 +1096,17 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
             document.getElementById('bettingPanel').style.display = 'block';
             document.getElementById('windowNumber').textContent = gameState.currentWindow;
             document.getElementById('drawButton').disabled = true;
+
+            // Nella prima finestra, disabilita il bottone "Chiudi Finestra Scommesse"
+            // finché tutti non hanno puntato (la partita non può iniziare senza puntate)
+            var closeBettingBtn = document.getElementById('closeBettingBtn');
+            if (gameState.currentWindow === 1) {
+                closeBettingBtn.disabled = true;
+                addLogEntry('⚠️ Tutti i concorrenti devono puntare prima di iniziare la corsa!');
+            } else {
+                closeBettingBtn.disabled = false;
+            }
+
             createBettingInterface();
             addLogEntry('💰 Finestra scommesse #' + gameState.currentWindow + ' aperta');
         }
@@ -1305,6 +1316,21 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
             updateGameInfo();
 
             addLogEntry('💰 ' + participant.name + ': ' + chips + ' fiches su ' + horse.name + ' (€' + amount.toFixed(2) + ' - €' + chipPrice.toFixed(2) + '/fiches)');
+
+            // Se siamo alla prima finestra e tutti hanno puntato, abilita il bottone "Chiudi Finestra Scommesse"
+            if (gameState.currentWindow === 1 && allParticipantsHaveBet()) {
+                document.getElementById('closeBettingBtn').disabled = false;
+                addLogEntry('✅ Tutti hanno puntato! Ora puoi chiudere la finestra e iniziare la corsa.');
+            }
+        }
+
+        function allParticipantsHaveBet() {
+            // Verifica se tutti i partecipanti hanno fatto almeno una puntata nella finestra corrente
+            return gameState.participants.every(function(participant) {
+                return participant.windowBets.some(function(bet) {
+                    return bet.window === gameState.currentWindow;
+                });
+            });
         }
 
         function closeBettingWindow() {
