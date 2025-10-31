@@ -940,6 +940,11 @@
         }
 
         function startGame() {
+            // Nascondi i bottoni di selezione modalità per dare più spazio al gioco
+            document.getElementById('gameModeSelection').style.display = 'none';
+            document.getElementById('gameConfig').style.display = 'none';
+            document.getElementById('participantsConfig').style.display = 'none';
+
             gameState.participants = [];
             for (var i = 0; i < gameState.gameConfig.numParticipants; i++) {
                 var name = document.getElementById('participant-' + i).value || 'Giocatore ' + (i + 1);
@@ -1758,6 +1763,7 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
                 currentCardIndex: 0,
                 currentWindow: 1,
                 isGameActive: false,
+                isDrawing: false,
                 totalPool: 0,
                 gameConfig: {
                     numHorses: 4,
@@ -1770,7 +1776,9 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
 
             arrivalOrder = [];
 
-            document.getElementById('gameConfig').style.display = 'block';
+            // Mostra di nuovo la selezione modalità invece che direttamente gameConfig
+            document.getElementById('gameModeSelection').style.display = 'block';
+            document.getElementById('gameConfig').style.display = 'none';
             document.getElementById('participantsConfig').style.display = 'none';
             document.getElementById('racetrack').style.display = 'none';
             document.getElementById('cardsSection').style.display = 'none';
@@ -1782,7 +1790,7 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
             document.getElementById('cardsStack').innerHTML = '';
 
             updatePrizeDistributionOptions();
-            addLogEntry('🔄 Gioco resettato - Pronto per una nuova partita!');
+            addLogEntry('🔄 Gioco resettato - Scegli la modalità di gioco!');
         }
 
         function addLogEntry(message) {
