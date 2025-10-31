@@ -1991,12 +1991,13 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
                     lobbyContainer.style.display = 'block';
                     console.log('✅ lobby-container mostrato');
 
-                    // Importa e mostra la lobby
-                    console.log('📦 Caricamento modulo lobby-ui.js...');
-                    const { showLobby } = await import('./src/lobby-ui.js');
-                    console.log('✅ Modulo caricato, chiamata a showLobby()...');
+                    // Usa la funzione showLobby esposta globalmente da main.js
+                    console.log('📦 Chiamata a window.showLobby()...');
+                    if (typeof window.showLobby !== 'function') {
+                        throw new Error('window.showLobby non è disponibile. Assicurati che main.js sia caricato.');
+                    }
 
-                    await showLobby();
+                    await window.showLobby();
                     console.log('✅ Lobby visualizzata');
                     addLogEntry('🌐 Modalità multiplayer selezionata');
                 } catch (error) {
