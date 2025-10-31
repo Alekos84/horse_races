@@ -8,12 +8,49 @@ let currentGameId = null;
 let gameSubscription = null;
 let bettingSubscription = null;
 
+// Helper: assicura che il profilo dell'utente esista nel database
+async function ensureUserProfile(user) {
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (!existingProfile) {
+    console.log('⚠️ Profilo non trovato, lo creo ora...');
+    const username = user.user_metadata?.username || user.email.split('@')[0];
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        username: username
+      });
+
+    if (profileError) {
+      console.error('❌ Errore creazione profilo:', profileError);
+      return null;
+    } else {
+      console.log('✅ Profilo creato con username:', username);
+      return username;
+    }
+  } else {
+    console.log('✅ Profilo già esistente:', existingProfile.username);
+    return existingProfile.username;
+  }
+}
+
 // Mostra la lobby (lista stanze)
 export async function showLobby() {
   const lobbyContainer = document.getElementById('lobby-container');
   if (!lobbyContainer) {
     console.error('Container lobby non trovato');
     return;
+  }
+
+  // Assicurati che il profilo dell'utente esista prima di mostrare la lobby
+  const currentUser = await getCurrentUser();
+  if (currentUser) {
+    await ensureUserProfile(currentUser);
   }
 
   lobbyContainer.innerHTML = `
@@ -243,6 +280,9 @@ export async function joinRoom(gameId) {
     alert('Devi essere loggato');
     return;
   }
+
+  // Assicurati che il profilo esista prima di aggiungere l'utente alla stanza
+  await ensureUserProfile(currentUser);
 
   // Registra l'utente come partecipante nella tabella game_participants
   const { error: participantError } = await supabase
