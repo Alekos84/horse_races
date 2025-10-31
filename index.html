@@ -1984,12 +1984,28 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
                 document.getElementById('gameConfig').style.display = 'block';
                 addLogEntry('🎮 Modalità locale selezionata');
             } else if (mode === 'multiplayer') {
-                document.getElementById('gameModeSelection').style.display = 'none';
-                document.getElementById('lobby-container').style.display = 'block';
-                // Importa e mostra la lobby
-                const { showLobby } = await import('./src/lobby-ui.js');
-                await showLobby();
-                addLogEntry('🌐 Modalità multiplayer selezionata');
+                console.log('🌐 Inizializzazione modalità multiplayer...');
+                try {
+                    document.getElementById('gameModeSelection').style.display = 'none';
+                    const lobbyContainer = document.getElementById('lobby-container');
+                    lobbyContainer.style.display = 'block';
+                    console.log('✅ lobby-container mostrato');
+
+                    // Importa e mostra la lobby
+                    console.log('📦 Caricamento modulo lobby-ui.js...');
+                    const { showLobby } = await import('./src/lobby-ui.js');
+                    console.log('✅ Modulo caricato, chiamata a showLobby()...');
+
+                    await showLobby();
+                    console.log('✅ Lobby visualizzata');
+                    addLogEntry('🌐 Modalità multiplayer selezionata');
+                } catch (error) {
+                    console.error('❌ Errore inizializzazione multiplayer:', error);
+                    alert('Errore caricamento multiplayer: ' + error.message + '\nControlla la console per dettagli.');
+                    // Ripristina la selezione modalità
+                    document.getElementById('gameModeSelection').style.display = 'block';
+                    document.getElementById('lobby-container').style.display = 'none';
+                }
             }
         }
 
