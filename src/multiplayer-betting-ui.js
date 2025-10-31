@@ -1,8 +1,14 @@
 import { getCurrentUser } from './auth.js';
-import { placeBet } from './game-multiplayer.js';
+import { placeBet, getGameBets } from './game-multiplayer.js';
+
+// Flag per prevenire acquisti simultanei
+let isPurchasing = false;
 
 // Crea interfaccia betting per multiplayer (solo giocatore corrente)
 export async function createMultiplayerBettingInterface() {
+  // Reset flag acquisto quando si apre una nuova finestra
+  isPurchasing = false;
+
   const user = await getCurrentUser();
   if (!user) return;
 
@@ -72,11 +78,37 @@ window.selectMultiplayerHorse = function(horseIndex) {
 
 // Compra una fiche
 window.buyMultiplayerChip = async function(horseIndex) {
-  const gameId = window.gameState.currentGameId;
-  const horse = window.gameState.horses[horseIndex];
-  const chipPrice = getChipPrice(horse.position);
+  // PROTEZIONE 1: Previeni click multipli simultanei
+  if (isPurchasing) {
+    console.log('⚠️ Acquisto già in corso, ignoro il click');
+    return;
+  }
+
+  isPurchasing = true;
+
+  // PROTEZIONE 2: Disabilita tutti i bottoni di acquisto
+  const allBuyButtons = document.querySelectorAll('.chip-btn');
+  allBuyButtons.forEach(btn => btn.disabled = true);
 
   try {
+    const gameId = window.gameState.currentGameId;
+    const horse = window.gameState.horses[horseIndex];
+    const chipPrice = getChipPrice(horse.position);
+    const maxBet = window.gameState.gameConfig.maxAmountPerWindow || 2.00;
+    const user = await getCurrentUser();
+
+    // PROTEZIONE 3: Verifica totale già speso in questa finestra
+    const bets = await getGameBets(gameId);
+    const userBets = bets.filter(b => b.user_id === user.id);
+    const totalSpent = userBets.reduce((sum, bet) => sum + bet.amount, 0);
+
+    console.log(`💰 Totale già speso: €${totalSpent.toFixed(2)} / Max: €${maxBet.toFixed(2)}`);
+
+    if (totalSpent + chipPrice > maxBet) {
+      alert(`❌ Non puoi superare il limite di €${maxBet.toFixed(2)} per finestra.\nHai già speso: €${totalSpent.toFixed(2)}`);
+      return;
+    }
+
     // Salva la puntata nel database
     await placeBet(gameId, horseIndex + 1, chipPrice); // horseIndex+1 perché il DB usa 1-based
 
@@ -92,6 +124,11 @@ window.buyMultiplayerChip = async function(horseIndex) {
     console.log(`✅ Puntata salvata: €${chipPrice} su ${horse.name}`);
   } catch (error) {
     alert('Errore piazzando scommessa: ' + error.message);
+  } finally {
+    // PROTEZIONE 4: Riabilita i bottoni e resetta il flag
+    const allBuyButtons = document.querySelectorAll('.chip-btn');
+    allBuyButtons.forEach(btn => btn.disabled = false);
+    isPurchasing = false;
   }
 };
 
