@@ -751,6 +751,7 @@
             currentCardIndex: 0,
             currentWindow: 1,
             isGameActive: false,
+            isDrawing: false,
             totalPool: 0,
             gameConfig: {
                 numHorses: 4,
@@ -955,6 +956,7 @@
             gameState.currentWindow = 1;
             gameState.totalPool = 0;
             gameState.isGameActive = true;
+            gameState.isDrawing = false; // Resetta il flag all'inizio della partita
             arrivalOrder = [];
 
             initializeHorses();
@@ -1302,8 +1304,9 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
         function closeBettingWindow() {
             document.getElementById('bettingPanel').style.display = 'none';
             document.getElementById('drawButton').disabled = false;
+            gameState.isDrawing = false; // Resetta il flag quando si chiude la finestra
             addLogEntry('🔒 Finestra scommesse #' + gameState.currentWindow + ' chiusa');
-            
+
             if (gameState.currentWindow === 1) {
                 gameState.participants.forEach(function(participant) {
                     participant.selectedHorse = undefined;
@@ -1320,7 +1323,30 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
         }
 
         function drawNextCard() {
+            // PROTEZIONE 1: Previeni chiamate multiple simultanee
+            if (gameState.isDrawing) {
+                console.log('⚠️ Pesca già in corso, ignoro il click');
+                return;
+            }
+
+            // PROTEZIONE 2: Controlla se abbiamo già pescato 5 carte (o multipli)
+            var cardsInCurrentWindow = gameState.currentCardIndex % 5;
+            if (cardsInCurrentWindow === 0 && gameState.currentCardIndex > 0) {
+                console.log('⚠️ Finestra completa, impossibile pescare altra carta');
+                return;
+            }
+
+            // PROTEZIONE 3: Disabilita immediatamente il bottone
+            var drawButton = document.getElementById('drawButton');
+            if (drawButton) {
+                drawButton.disabled = true;
+            }
+
+            // Imposta il flag per bloccare altre chiamate
+            gameState.isDrawing = true;
+
             if (gameState.currentCardIndex >= gameState.deck.length) {
+                gameState.isDrawing = false;
                 endGame();
                 return;
             }
@@ -1337,7 +1363,7 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
             if (horse) {
                 var movement = CARD_MOVEMENT[card.value];
                 var oldPosition = horse.position;
-                
+
                 if (oldPosition > 10 && movement < 0) {
                     addLogEntry('🃏 ' + card.value + ' di ' + card.suit + ' → ' + horse.name + ': Già oltre il traguardo, nessun movimento');
                 } else {
@@ -1357,21 +1383,35 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
 		updateHorseBlockStatus(horse);
                     addLogEntry('🃏 ' + card.value + ' di ' + card.suit + ' → ' + horse.name + ': ' + oldPosition + '→' + horse.position + ' (' + (movement > 0 ? '+' : '') + movement + ')');
                 }
-                
+
                 if (isRaceFinished()) {
+                    gameState.isDrawing = false;
                     setTimeout(function() { endGame(); }, 1000);
                     return;
                 }
             }
 
-            if ((gameState.currentCardIndex === 5) || 
+            // Controlla se abbiamo completato una finestra (5 carte o multipli)
+            if ((gameState.currentCardIndex === 5) ||
                 (gameState.currentCardIndex > 5 && (gameState.currentCardIndex % 5 === 0))) {
                 if (gameState.currentCardIndex < gameState.deck.length) {
+                    // Apri la prossima finestra scommesse
                     setTimeout(function() {
                         gameState.currentWindow++;
+                        gameState.isDrawing = false; // Resetta il flag dopo l'apertura
                         openBettingWindow();
                     }, 1500);
+                } else {
+                    gameState.isDrawing = false;
                 }
+            } else {
+                // Se non abbiamo completato la finestra, riabilita il bottone e resetta il flag
+                setTimeout(function() {
+                    gameState.isDrawing = false;
+                    if (drawButton) {
+                        drawButton.disabled = false;
+                    }
+                }, 300); // Piccolo delay per evitare doppi click accidentali
             }
 
             updateGameInfo();
