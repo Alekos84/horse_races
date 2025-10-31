@@ -78,6 +78,14 @@ window.selectMultiplayerHorse = function(horseIndex) {
 
 // Compra una fiche
 window.buyMultiplayerChip = async function(horseIndex) {
+  // PROTEZIONE 0: Verifica che la finestra scommesse sia ancora aperta
+  const bettingPanel = document.getElementById('bettingPanel');
+  if (!bettingPanel || bettingPanel.style.display === 'none') {
+    console.log('⚠️ Finestra scommesse chiusa, acquisto bloccato');
+    alert('⚠️ La finestra scommesse è chiusa!');
+    return;
+  }
+
   // PROTEZIONE 1: Previeni click multipli simultanei
   if (isPurchasing) {
     console.log('⚠️ Acquisto già in corso, ignoro il click');

@@ -463,12 +463,59 @@ async function updatePlayersStatus(gameId, roundNumber) {
 
   if (!statusList) return;
 
-  statusList.innerHTML = states.map(state => `
-    <div class="player-status-item">
-      ${state.profiles?.username || 'Giocatore'}:
-      ${state.betting_window_closed ? '✅ Pronto' : '⏳ In scommessa'}
-    </div>
-  `).join('');
+  // Carica tutte le puntate del gioco
+  const allBets = await getGameBets(gameId);
+
+  statusList.innerHTML = await Promise.all(states.map(async state => {
+    const username = state.profiles?.username || 'Giocatore';
+    const status = state.betting_window_closed ? '✅ Pronto' : '⏳ In scommessa';
+
+    // Filtra le puntate di questo giocatore
+    const playerBets = allBets.filter(bet => bet.user_id === state.user_id);
+
+    // Raggruppa per cavallo e calcola totale
+    const betsByHorse = {};
+    let totalSpent = 0;
+    let lastBet = 0;
+
+    playerBets.forEach(bet => {
+      const horseIndex = bet.horse_number - 1;
+      if (!betsByHorse[horseIndex]) {
+        betsByHorse[horseIndex] = { amount: 0, chips: 0 };
+      }
+      betsByHorse[horseIndex].amount += bet.amount;
+      betsByHorse[horseIndex].chips = Math.round(betsByHorse[horseIndex].amount / 0.20);
+      totalSpent += bet.amount;
+      lastBet = bet.amount; // Ultima puntata singola (approssimazione)
+    });
+
+    // Crea riepilogo fiches per cavallo
+    let chipsHtml = '';
+    if (Object.keys(betsByHorse).length > 0) {
+      chipsHtml = '<div style="margin-top: 8px; font-size: 12px;">';
+      chipsHtml += '<strong>Fiches:</strong> ';
+      Object.entries(betsByHorse).forEach(([horseIndex, data], index) => {
+        const horse = window.gameState.horses[parseInt(horseIndex)];
+        if (horse) {
+          chipsHtml += `<span style="display: inline-block; margin: 2px 4px; padding: 2px 6px; background: ${horse.color}; color: ${horse.color === '#FFFFFF' || horse.color === '#FFD700' ? '#000' : '#fff'}; border-radius: 8px; font-size: 11px;">`;
+          chipsHtml += `${horse.name}: ${data.chips} 🎯</span>`;
+        }
+      });
+      chipsHtml += '</div>';
+    }
+
+    return `
+      <div class="player-status-item" style="background: rgba(255,255,255,0.05); padding: 10px; margin: 5px 0; border-radius: 6px;">
+        <div><strong>${username}</strong>: ${status}</div>
+        ${playerBets.length > 0 ? `
+          <div style="font-size: 12px; margin-top: 4px; color: #aaa;">
+            Ultima puntata: €${lastBet.toFixed(2)} | Totale: €${totalSpent.toFixed(2)}
+          </div>
+          ${chipsHtml}
+        ` : '<div style="font-size: 12px; color: #888;">Nessuna puntata</div>'}
+      </div>
+    `;
+  })).then(items => items.join(''));
 }
 
 // Carica le puntate precedenti del giocatore dal database

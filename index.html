@@ -1490,7 +1490,18 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
             var finishedHorses = gameState.horses.filter(function(horse) {
                 return horse.position > 10;
             });
-            return finishedHorses.length >= prizePositions;
+            var isFinished = finishedHorses.length >= prizePositions;
+
+            if (finishedHorses.length > 0) {
+                console.log('🏁 Controllo fine corsa:', {
+                    prizePositions: prizePositions,
+                    finishedHorses: finishedHorses.length,
+                    isFinished: isFinished,
+                    horses: gameState.horses.map(h => ({ name: h.name, position: h.position }))
+                });
+            }
+
+            return isFinished;
         }
 
         function drawNextCard() {
@@ -1920,6 +1931,24 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
         }
 
         function resetGame() {
+            // Se è multiplayer, NON resettare tutto - torna solo alla lobby
+            if (gameState.isMultiplayer) {
+                console.log('🌐 Fine partita multiplayer - torno alla lobby');
+                document.getElementById('racetrack').style.display = 'none';
+                document.getElementById('cardsSection').style.display = 'none';
+                document.getElementById('bettingPanel').style.display = 'none';
+                document.getElementById('gameLog').style.display = 'none';
+                document.getElementById('results').style.display = 'none';
+
+                // Non mostrare gameModeSelection, resta nella lobby
+                document.getElementById('gameModeSelection').style.display = 'none';
+                document.getElementById('lobby-container').style.display = 'block';
+
+                addLogEntry('🏁 Partita multiplayer terminata');
+                return;
+            }
+
+            // Modalità locale: reset completo
             gameState = {
                 horses: [],
                 participants: [],
