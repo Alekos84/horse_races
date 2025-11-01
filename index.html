@@ -1133,6 +1133,9 @@
 	}
 
         function createNeapolitanDeck(seed) {
+            // IMPORTANTE: Resetta il deck prima di creare le carte
+            gameState.deck = [];
+
             var suits = gameState.horses.map(function(horse) { return horse.suit; });
             var values = ['Asso', '2', '3', '4', '5', '6', '7', 'Donna', 'Cavallo', 'Re'];
 
