@@ -871,7 +871,10 @@
             <h3>🏆 Risultati Gara</h3>
             <div id="winnerInfo"></div>
             <div id="payoutInfo"></div>
-            <button class="btn" onclick="resetGame()">Nuova Partita</button>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="btn" onclick="resetGame()">Nuova Partita</button>
+                <button class="btn" onclick="backToHome()" style="background: #666;">Esci</button>
+            </div>
         </div>
 
         <!-- Log Eventi -->
@@ -2002,6 +2005,61 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
 
             updatePrizeDistributionOptions();
             addLogEntry('🔄 Gioco resettato - Scegli la modalità di gioco!');
+        }
+
+        function backToHome() {
+            console.log('🏠 Ritorno alla home page');
+
+            // Nascondi tutte le schermate di gioco
+            document.getElementById('racetrack').style.display = 'none';
+            document.getElementById('cardsSection').style.display = 'none';
+            document.getElementById('bettingPanel').style.display = 'none';
+            document.getElementById('gameLog').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('gameConfig').style.display = 'none';
+            document.getElementById('participantsConfig').style.display = 'none';
+
+            // Nascondi elementi multiplayer
+            document.getElementById('lobby-container').style.display = 'none';
+
+            // Rimuovi elementi dinamici della room se esistono
+            const roomHeader = document.getElementById('room-header');
+            if (roomHeader) {
+                roomHeader.remove();
+                console.log('🧹 room-header rimosso');
+            }
+
+            const playersSection = document.getElementById('players-section');
+            if (playersSection) {
+                playersSection.remove();
+                console.log('🧹 players-section rimosso');
+            }
+
+            // Reset parziale gameState (mantieni config base ma rimuovi dati partita)
+            gameState.horses = [];
+            gameState.participants = [];
+            gameState.deck = [];
+            gameState.drawnCards = [];
+            gameState.currentCardIndex = 0;
+            gameState.currentWindow = 1;
+            gameState.isGameActive = false;
+            gameState.isDrawing = false;
+            gameState.totalPool = 0;
+            gameState.isMultiplayer = false;
+            gameState.currentGameId = null;
+            gameState.currentRoomId = null;
+
+            arrivalOrder = [];
+
+            // Pulisci log e carte
+            document.getElementById('logEntries').innerHTML = '';
+            document.getElementById('cardsStack').innerHTML = '';
+
+            // Mostra schermata selezione modalità (home)
+            document.getElementById('gameModeSelection').style.display = 'block';
+
+            addLogEntry('🏠 Ritorno alla home - Scegli la modalità di gioco!');
+            console.log('✅ Ritorno alla home completato');
         }
 
         function addLogEntry(message) {
