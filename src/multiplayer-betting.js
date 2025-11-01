@@ -461,10 +461,14 @@ async function updatePlayersStatus(gameId, roundNumber) {
   const states = await getPlayersStatus(gameId, roundNumber);
   const statusList = document.getElementById('players-status-list');
 
-  if (!statusList) return;
+  if (!statusList) {
+    console.warn('⚠️ players-status-list non trovato nel DOM');
+    return;
+  }
 
   // Carica tutte le puntate del gioco
   const allBets = await getGameBets(gameId);
+  console.log('📊 updatePlayersStatus - Puntate totali caricate:', allBets.length);
 
   statusList.innerHTML = await Promise.all(states.map(async state => {
     const username = state.profiles?.username || 'Giocatore';
@@ -472,6 +476,7 @@ async function updatePlayersStatus(gameId, roundNumber) {
 
     // Filtra le puntate di questo giocatore
     const playerBets = allBets.filter(bet => bet.user_id === state.user_id);
+    console.log(`📊 ${username} - Puntate:`, playerBets.length);
 
     // Raggruppa per cavallo e calcola totale
     const betsByHorse = {};
@@ -484,9 +489,18 @@ async function updatePlayersStatus(gameId, roundNumber) {
         betsByHorse[horseIndex] = { amount: 0, chips: 0 };
       }
       betsByHorse[horseIndex].amount += bet.amount;
-      betsByHorse[horseIndex].chips = Math.round(betsByHorse[horseIndex].amount / 0.20);
       totalSpent += bet.amount;
       lastBet = bet.amount; // Ultima puntata singola (approssimazione)
+    });
+
+    // Calcola numero fiches DOPO aver sommato tutti gli importi
+    Object.entries(betsByHorse).forEach(([horseIndex, data]) => {
+      const horse = window.gameState?.horses?.[parseInt(horseIndex)];
+      if (horse) {
+        const chipPrice = getChipPrice(horse.position);
+        data.chips = Math.round(data.amount / chipPrice);
+        console.log(`  📊 ${horse.name}: ${data.chips} fiches (€${data.amount.toFixed(2)} / €${chipPrice.toFixed(2)})`);
+      }
     });
 
     // Crea riepilogo fiches per cavallo
