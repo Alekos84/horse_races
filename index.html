@@ -1885,6 +1885,14 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
             }
 
             resultsDiv.style.display = 'block';
+
+            // Auto-return alla home dopo 90 secondi
+            setTimeout(function() {
+                console.log('⏰ 90 secondi trascorsi - ritorno automatico alla home');
+                backToHome();
+            }, 90000);
+
+            addLogEntry('⏰ Ritorno automatico alla home tra 90 secondi');
         }
 
         function calculateAllParticipantsResults(rankedHorses, prizePositions) {
