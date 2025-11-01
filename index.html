@@ -1577,6 +1577,15 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
             // Controlla se abbiamo completato una finestra (5 carte o multipli)
             if ((gameState.currentCardIndex === 5) ||
                 (gameState.currentCardIndex > 5 && (gameState.currentCardIndex % 5 === 0))) {
+
+                // PROTEZIONE: Non aprire finestra scommesse se la corsa è già finita
+                if (isRaceFinished()) {
+                    console.log('🏁 Corsa finita, NON apro finestra scommesse');
+                    gameState.isDrawing = false;
+                    setTimeout(function() { endGame(); }, 1000);
+                    return;
+                }
+
                 if (gameState.currentCardIndex < gameState.deck.length) {
                     // Apri la prossima finestra scommesse
                     setTimeout(function() {
