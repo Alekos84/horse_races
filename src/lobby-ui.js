@@ -966,13 +966,13 @@ async function showWaitingRoomModal(gameId, creatorId, currentUserId) {
   // Sottoscrivi agli aggiornamenti per aggiornare la lista giocatori
   subscribeToWaitingRoom(gameId);
 
-  // AUTO-REFRESH ogni 15 secondi come backup al realtime
+  // AUTO-REFRESH ogni 8 secondi come backup al realtime
   waitingRoomRefreshInterval = setInterval(async () => {
-    console.log('🔄 Auto-refresh sala d\'attesa (ogni 15s)');
+    console.log('🔄 Auto-refresh sala d\'attesa (ogni 8s)');
     await updateWaitingPlayersList(gameId);
-  }, 15000);
+  }, 8000);
 
-  console.log('✅ Auto-refresh sala d\'attesa attivato (ogni 15 secondi)');
+  console.log('✅ Auto-refresh sala d\'attesa attivato (ogni 8 secondi)');
 }
 
 // Aggiorna la lista dei giocatori nella sala d'attesa
