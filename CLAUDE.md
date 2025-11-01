@@ -1,0 +1,1 @@
+- 4. la corsa continua dopo che il primo cavallo raggiunge il traguardo. si deve fermare tutto. invece di mettere protezioni non si può impostare che quando un cavallo vince (se la partita non prevede altri vincitori) stop alle finestre scommesse, stop all'estrazione di nuove carte, stop al movimento di tutti i cavalli????

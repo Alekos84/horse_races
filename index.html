@@ -894,6 +894,7 @@
             currentWindow: 1,
             isGameActive: false,
             isDrawing: false,
+            raceFinished: false, // Flag permanente per STOP TOTALE quando un cavallo vince
             totalPool: 0,
             gameConfig: {
                 numHorses: 4,
@@ -1105,6 +1106,7 @@
             gameState.totalPool = 0;
             gameState.isGameActive = true;
             gameState.isDrawing = false; // Resetta il flag all'inizio della partita
+            gameState.raceFinished = false; // Resetta flag fine corsa
             arrivalOrder = [];
 
             initializeHorses();
@@ -1492,17 +1494,43 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
         }
 
         function isRaceFinished() {
+            // Se già settato, ritorna immediatamente true
+            if (gameState.raceFinished) {
+                return true;
+            }
+
             var prizePositions = gameState.gameConfig.prizeDistribution;
             var finishedHorses = gameState.horses.filter(function(horse) {
                 return horse.position > 10;
             });
             var isFinished = finishedHorses.length >= prizePositions;
 
+            // IMPORTANTE: Setta il flag permanente quando la corsa finisce
+            if (isFinished) {
+                gameState.raceFinished = true;
+                console.log('🏁🚨 CORSA TERMINATA - FLAG PERMANENTE SETTATO - STOP TOTALE');
+
+                // Chiudi immediatamente finestra scommesse se aperta
+                var bettingPanel = document.getElementById('bettingPanel');
+                if (bettingPanel && bettingPanel.style.display !== 'none') {
+                    bettingPanel.style.display = 'none';
+                    console.log('🚫 Finestra scommesse chiusa immediatamente');
+                }
+
+                // Disabilita permanentemente bottone pesca carta
+                var drawButton = document.getElementById('drawButton');
+                if (drawButton) {
+                    drawButton.disabled = true;
+                    console.log('🚫 Bottone pesca carta disabilitato permanentemente');
+                }
+            }
+
             if (finishedHorses.length > 0) {
                 console.log('🏁 Controllo fine corsa:', {
                     prizePositions: prizePositions,
                     finishedHorses: finishedHorses.length,
                     isFinished: isFinished,
+                    flagSettato: gameState.raceFinished,
                     horses: gameState.horses.map(h => ({ name: h.name, position: h.position }))
                 });
             }
@@ -1595,9 +1623,15 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
                 if (gameState.currentCardIndex < gameState.deck.length) {
                     // Apri la prossima finestra scommesse
                     setTimeout(function() {
-                        gameState.currentWindow++;
-                        gameState.isDrawing = false; // Resetta il flag dopo l'apertura
-                        openBettingWindow();
+                        // CONTROLLO: Non aprire finestra se la corsa è finita nel frattempo
+                        if (!gameState.raceFinished) {
+                            gameState.currentWindow++;
+                            gameState.isDrawing = false; // Resetta il flag dopo l'apertura
+                            openBettingWindow();
+                        } else {
+                            console.log('⛔ Corsa finita - NON apro nuova finestra scommesse');
+                            gameState.isDrawing = false;
+                        }
                     }, 1500);
                 } else {
                     gameState.isDrawing = false;
@@ -1605,9 +1639,15 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
             } else {
                 // Se non abbiamo completato la finestra, riabilita il bottone e resetta il flag
                 setTimeout(function() {
-                    gameState.isDrawing = false;
-                    if (drawButton) {
-                        drawButton.disabled = false;
+                    // CONTROLLO: Non riabilitare se la corsa è finita nel frattempo
+                    if (!gameState.raceFinished) {
+                        gameState.isDrawing = false;
+                        if (drawButton) {
+                            drawButton.disabled = false;
+                        }
+                    } else {
+                        console.log('⛔ Corsa finita - NON riabilito bottone pesca carta');
+                        gameState.isDrawing = false;
                     }
                 }, 300); // Piccolo delay per evitare doppi click accidentali
             }
@@ -1989,6 +2029,7 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
                 currentWindow: 1,
                 isGameActive: false,
                 isDrawing: false,
+                raceFinished: false,
                 totalPool: 0,
                 gameConfig: {
                     numHorses: 4,
@@ -2055,6 +2096,7 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
             gameState.currentWindow = 1;
             gameState.isGameActive = false;
             gameState.isDrawing = false;
+            gameState.raceFinished = false;
             gameState.totalPool = 0;
             gameState.isMultiplayer = false;
             gameState.currentGameId = null;
