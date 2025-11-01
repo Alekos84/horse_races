@@ -723,21 +723,51 @@ async function loadRoomData(gameId) {
               </div>
             `;
           } else {
-            // Giocatore con puntate
-            const lastBet = playerBets.bets[playerBets.bets.length - 1];
-            const horseIndex = lastBet.horse_number - 1;
-            const horse = window.gameState.horses[horseIndex];
-            const horseName = horse ? horse.name : `Cavallo ${lastBet.horse_number}`;
+            // Giocatore con puntate - raggruppa per cavallo
+            const betsByHorse = {};
+            playerBets.bets.forEach(bet => {
+              const horseIndex = bet.horse_number - 1;
+              if (!betsByHorse[horseIndex]) {
+                betsByHorse[horseIndex] = { amount: 0, chips: 0 };
+              }
+              betsByHorse[horseIndex].amount += bet.amount;
+            });
+
+            // Calcola numero fiches per ogni cavallo
+            Object.entries(betsByHorse).forEach(([horseIndex, data]) => {
+              const horse = window.gameState?.horses?.[parseInt(horseIndex)];
+              if (horse) {
+                const basePrice = window.gameState.gameConfig.initialChipValue || 0.20;
+                const chipPrice = horse.position >= 9 ? basePrice * 3 :
+                                  horse.position >= 7 ? basePrice * 2 :
+                                  horse.position >= 4 ? basePrice * 1.5 :
+                                  basePrice;
+                data.chips = Math.round(data.amount / chipPrice);
+              }
+            });
+
+            // Crea badge fiches
+            let chipsHtml = '';
+            if (Object.keys(betsByHorse).length > 0) {
+              chipsHtml = '<div style="margin-top: 8px; font-size: 11px;">';
+              chipsHtml += '<div style="color: #aaa; margin-bottom: 4px;">Fiches:</div>';
+              Object.entries(betsByHorse).forEach(([horseIndex, data]) => {
+                const horse = window.gameState.horses[parseInt(horseIndex)];
+                if (horse) {
+                  chipsHtml += `<span style="display: inline-block; margin: 2px 3px; padding: 2px 6px; background: ${horse.color}; color: ${horse.color === '#FFFFFF' || horse.color === '#FFD700' ? '#000' : '#fff'}; border-radius: 8px; font-size: 10px;">`;
+                  chipsHtml += `${horse.name}: ${data.chips}</span>`;
+                }
+              });
+              chipsHtml += '</div>';
+            }
 
             return `
               <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
                 <strong style="color: #4CAF50;">👤 ${username}</strong>
-                <div style="font-size: 12px; color: #ccc; margin-top: 5px;">
-                  Ultima puntata: <span style="color: white;">${horseName}</span>
-                </div>
                 <div style="margin-top: 5px; font-weight: bold; color: white;">
                   Totale speso: €${playerBets.totalSpent.toFixed(2)}
                 </div>
+                ${chipsHtml}
               </div>
             `;
           }
