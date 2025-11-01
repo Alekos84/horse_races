@@ -1505,6 +1505,12 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
         }
 
         function drawNextCard() {
+            // PROTEZIONE 0: Se la corsa è già finita, non pescare più carte
+            if (isRaceFinished()) {
+                console.log('🏁 Corsa già finita, non pesco più carte');
+                return;
+            }
+
             // PROTEZIONE 1: Previeni chiamate multiple simultanee
             if (gameState.isDrawing) {
                 console.log('⚠️ Pesca già in corso, ignoro il click');
@@ -1558,12 +1564,14 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
 		updateHorseBlockStatus(horse);
                     addLogEntry('🃏 ' + card.value + ' di ' + card.suit + ' → ' + horse.name + ': ' + oldPosition + '→' + horse.position + ' (' + (movement > 0 ? '+' : '') + movement + ')');
                 }
+            }
 
-                if (isRaceFinished()) {
-                    gameState.isDrawing = false;
-                    setTimeout(function() { endGame(); }, 1000);
-                    return;
-                }
+            // CONTROLLO FINE CORSA - SPOSTATO FUORI dall'if(horse) per controllare SEMPRE
+            if (isRaceFinished()) {
+                console.log('🏁 CORSA FINITA! Fermo estrazione carte');
+                gameState.isDrawing = false;
+                setTimeout(function() { endGame(); }, 1000);
+                return;
             }
 
             // Controlla se abbiamo completato una finestra (5 carte o multipli)
