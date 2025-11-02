@@ -179,10 +179,21 @@ async function checkAllPlayersClosed(gameId, roundNumber) {
 async function drawCards(gameId) {
   console.log('🎴 Inizio pescaggio 5 carte...');
 
-  // CONTROLLO PRIORITARIO: Se la corsa è finita, non pescare altre carte
+  // CONTROLLO PRIORITARIO 1: Se la corsa è finita (flag), non pescare altre carte
   if (window.gameState && window.gameState.raceFinished) {
-    console.log('🏁⛔ CORSA GIÀ FINITA - NON pesco altre carte');
+    console.log('🏁⛔ CORSA GIÀ FINITA (flag) - NON pesco altre carte');
     return;
+  }
+
+  // CONTROLLO PRIORITARIO 2: Verifica direttamente se qualche cavallo ha vinto
+  if (window.gameState && window.gameState.horses) {
+    const prizePositions = window.gameState.gameConfig?.prizeDistribution || 1;
+    const finishedHorses = window.gameState.horses.filter(h => h.position > 10);
+
+    if (finishedHorses.length >= prizePositions) {
+      console.log(`🏁⛔ CORSA GIÀ FINITA (${finishedHorses.length} cavalli arrivati) - NON pesco altre carte`);
+      return;
+    }
   }
 
   // Verifica se le carte sono già state pescate (evita duplicati) e leggi current_round e current_card_index
@@ -271,10 +282,22 @@ async function drawCards(gameId) {
 
     // Aspetta che i client abbiano processato le carte (delay di 8 secondi = 5 carte * 1.5s + margine)
     setTimeout(async () => {
-      // CONTROLLO CRITICO: Non aprire nuovo round se la corsa è finita
+      // CONTROLLO CRITICO 1: Non aprire nuovo round se la corsa è finita (flag)
       if (window.gameState && window.gameState.raceFinished) {
-        console.log('🏁⛔ CORSA FINITA - NON apro nuovo round di scommesse');
+        console.log('🏁⛔ CORSA FINITA (flag) - NON apro nuovo round di scommesse');
         return;
+      }
+
+      // CONTROLLO CRITICO 2: Verifica direttamente se qualche cavallo ha vinto
+      if (window.gameState && window.gameState.horses) {
+        const prizePositions = window.gameState.gameConfig?.prizeDistribution || 1;
+        const finishedHorses = window.gameState.horses.filter(h => h.position > 10);
+
+        if (finishedHorses.length >= prizePositions) {
+          console.log(`🏁⛔ CORSA FINITA (${finishedHorses.length} cavalli arrivati) - NON apro nuovo round`);
+          console.log('Cavalli arrivati:', finishedHorses.map(h => ({ name: h.name, position: h.position })));
+          return;
+        }
       }
 
       console.log(`🎯 Apro round ${nextRound} di scommesse...`);

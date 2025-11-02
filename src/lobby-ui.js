@@ -498,6 +498,23 @@ export async function joinRoom(gameId) {
       if (game.betting_phase && game.current_round > 1 && (!game.cards_drawn || game.cards_drawn.length === 0)) {
         console.log(`🎯 Nuovo round di scommesse: ${game.current_round}`);
 
+        // CONTROLLO CRITICO: Non aprire se la corsa è finita
+        if (window.gameState && window.gameState.raceFinished) {
+          console.log('🏁⛔ CORSA FINITA (flag) - NON apro finestra scommesse');
+          return;
+        }
+
+        // CONTROLLO CRITICO 2: Verifica direttamente se qualche cavallo ha vinto
+        if (window.gameState && window.gameState.horses) {
+          const prizePositions = window.gameState.gameConfig?.prizeDistribution || 1;
+          const finishedHorses = window.gameState.horses.filter(h => h.position > 10);
+
+          if (finishedHorses.length >= prizePositions) {
+            console.log(`🏁⛔ CORSA FINITA (${finishedHorses.length} cavalli) - NON apro finestra scommesse`);
+            return;
+          }
+        }
+
         // Verifica che la finestra non sia già aperta
         const bettingPanel = document.getElementById('bettingPanel');
         if (bettingPanel && bettingPanel.style.display === 'none') {
