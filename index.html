@@ -1510,6 +1510,23 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
                 gameState.raceFinished = true;
                 console.log('🏁🚨 CORSA TERMINATA - FLAG PERMANENTE SETTATO - STOP TOTALE');
 
+                // SALVA NEL DATABASE che la corsa è finita (MULTIPLAYER)
+                if (gameState.isMultiplayer && gameState.currentGameId) {
+                    console.log('💾 Salvo status=finished nel database...');
+                    if (typeof window.supabase !== 'undefined') {
+                        window.supabase.from('games')
+                            .update({ status: 'finished' })
+                            .eq('id', gameState.currentGameId)
+                            .then(function(result) {
+                                if (result.error) {
+                                    console.error('❌ Errore salvataggio status finished:', result.error);
+                                } else {
+                                    console.log('✅ Status finished salvato nel database');
+                                }
+                            });
+                    }
+                }
+
                 // Chiudi immediatamente finestra scommesse se aperta
                 var bettingPanel = document.getElementById('bettingPanel');
                 if (bettingPanel && bettingPanel.style.display !== 'none') {

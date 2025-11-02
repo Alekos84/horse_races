@@ -11,7 +11,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // Crea il client Supabase
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Esponi showLobby e joinRoom globalmente per il codice inline dell'HTML
+// Esponi supabase, showLobby e joinRoom globalmente per il codice inline dell'HTML
+window.supabase = supabase;
 window.showLobby = showLobby;
 window.joinRoom = joinRoom;
 
