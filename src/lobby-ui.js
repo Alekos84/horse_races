@@ -612,6 +612,17 @@ export async function joinRoom(gameId) {
           }
         }
 
+        // CONTROLLO FINALE: Verifica se la corsa è finita DOPO aver processato tutte le carte
+        if (typeof window.isRaceFinished === 'function' && window.isRaceFinished()) {
+          console.log('🏁 CORSA FINITA dopo processamento carte - NON preparo prossimo round');
+          setTimeout(() => {
+            if (typeof window.endGame === 'function') {
+              window.endGame();
+            }
+          }, 1000);
+          return;
+        }
+
         // Dopo aver processato tutte le carte, apri la prossima finestra se non siamo alla fine
         const currentRound = game.current_round || 1;
         const nextRound = currentRound + 1;
@@ -620,6 +631,12 @@ export async function joinRoom(gameId) {
           console.log(`🎯 Fine round ${currentRound}, preparazione round ${nextRound}...`);
 
           setTimeout(async () => {
+            // ULTIMO CONTROLLO: Prima di preparare il round, verifica che la corsa non sia finita nel frattempo
+            if (window.gameState && window.gameState.raceFinished) {
+              console.log('🏁⛔ CORSA FINITA - NON preparo round');
+              return;
+            }
+
             console.log(`🔄 Fine round ${currentRound}, attendo che il server prepari round ${nextRound}...`);
 
             // NON fare update qui! Lascia che drawCards() aggiorni atomicamente:
