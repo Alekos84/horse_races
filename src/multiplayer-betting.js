@@ -45,6 +45,12 @@ export async function updateTotalPool(gameId) {
 
 // Apre la finestra scommesse multiplayer (solo per il giocatore corrente)
 export async function openMultiplayerBetting(gameId, roundNumber, username, initialChips, maxBet, startTimer = true) {
+  // CONTROLLO PRIORITARIO: Non aprire finestra scommesse se la corsa è finita
+  if (window.gameState && window.gameState.raceFinished) {
+    console.log('🏁⛔ CORSA FINITA - NON apro finestra scommesse');
+    return;
+  }
+
   const bettingPanel = document.getElementById('bettingPanel');
   const participantsBetting = document.getElementById('participantsBetting');
 

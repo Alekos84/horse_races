@@ -179,6 +179,12 @@ async function checkAllPlayersClosed(gameId, roundNumber) {
 async function drawCards(gameId) {
   console.log('🎴 Inizio pescaggio 5 carte...');
 
+  // CONTROLLO PRIORITARIO: Se la corsa è finita, non pescare altre carte
+  if (window.gameState && window.gameState.raceFinished) {
+    console.log('🏁⛔ CORSA GIÀ FINITA - NON pesco altre carte');
+    return;
+  }
+
   // Verifica se le carte sono già state pescate (evita duplicati) e leggi current_round e current_card_index
   const { data: currentGame } = await supabase
     .from('games')
@@ -265,6 +271,12 @@ async function drawCards(gameId) {
 
     // Aspetta che i client abbiano processato le carte (delay di 8 secondi = 5 carte * 1.5s + margine)
     setTimeout(async () => {
+      // CONTROLLO CRITICO: Non aprire nuovo round se la corsa è finita
+      if (window.gameState && window.gameState.raceFinished) {
+        console.log('🏁⛔ CORSA FINITA - NON apro nuovo round di scommesse');
+        return;
+      }
+
       console.log(`🎯 Apro round ${nextRound} di scommesse...`);
 
       await supabase
