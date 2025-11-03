@@ -302,6 +302,25 @@ async function drawCards(gameId) {
         return;
       }
 
+      // CONTROLLO CRITICO 3: Verifica DIRETTAMENTE le posizioni dei cavalli
+      // Anche se il flag non è settato, controlla se qualche cavallo ha già vinto
+      if (window.gameState && window.gameState.horses && window.gameState.gameConfig) {
+        const prizePositions = window.gameState.gameConfig.prizeDistribution || 1;
+        const finishedHorses = window.gameState.horses.filter(h => h.position > 10);
+        if (finishedHorses.length >= prizePositions) {
+          console.log('🏁⛔ CORSA GIÀ FINITA (controllo posizioni dirette) - NON apro nuovo round');
+          console.log(`   Cavalli finiti: ${finishedHorses.length}/${prizePositions} necessari`);
+          console.log(`   Posizioni: ${finishedHorses.map(h => `${h.name}=${h.position}`).join(', ')}`);
+
+          // Assicurati che il flag sia settato anche qui (backup di sicurezza)
+          if (!window.gameState.raceFinished) {
+            window.gameState.raceFinished = true;
+            console.log('🚨 Flag raceFinished non era settato, lo setto ora come backup di sicurezza');
+          }
+          return;
+        }
+      }
+
       console.log(`🎯 Apro round ${nextRound} di scommesse...`);
 
       await supabase

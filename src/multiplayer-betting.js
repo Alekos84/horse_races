@@ -45,10 +45,28 @@ export async function updateTotalPool(gameId) {
 
 // Apre la finestra scommesse multiplayer (solo per il giocatore corrente)
 export async function openMultiplayerBetting(gameId, roundNumber, username, initialChips, maxBet, startTimer = true) {
-  // CONTROLLO PRIORITARIO: Non aprire finestra scommesse se la corsa è finita
+  // CONTROLLO PRIORITARIO 1: Non aprire finestra scommesse se la corsa è finita (flag)
   if (window.gameState && window.gameState.raceFinished) {
-    console.log('🏁⛔ CORSA FINITA - NON apro finestra scommesse');
+    console.log('🏁⛔ CORSA FINITA (flag locale) - NON apro finestra scommesse');
     return;
+  }
+
+  // CONTROLLO PRIORITARIO 2: Verifica DIRETTAMENTE le posizioni dei cavalli
+  if (window.gameState && window.gameState.horses && window.gameState.gameConfig) {
+    const prizePositions = window.gameState.gameConfig.prizeDistribution || 1;
+    const finishedHorses = window.gameState.horses.filter(h => h.position > 10);
+    if (finishedHorses.length >= prizePositions) {
+      console.log('🏁⛔ CORSA GIÀ FINITA (controllo posizioni dirette in openMultiplayerBetting) - NON apro finestra');
+      console.log(`   Cavalli finiti: ${finishedHorses.length}/${prizePositions} necessari`);
+      console.log(`   Posizioni: ${finishedHorses.map(h => `${h.name}=${h.position}`).join(', ')}`);
+
+      // Assicurati che il flag sia settato anche qui (backup di sicurezza)
+      if (!window.gameState.raceFinished) {
+        window.gameState.raceFinished = true;
+        console.log('🚨 Flag raceFinished non era settato, lo setto ora come backup di sicurezza');
+      }
+      return;
+    }
   }
 
   const bettingPanel = document.getElementById('bettingPanel');

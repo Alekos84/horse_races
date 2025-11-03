@@ -510,6 +510,24 @@ export async function joinRoom(gameId) {
           return;
         }
 
+        // CONTROLLO CRITICO 3: Verifica DIRETTAMENTE le posizioni dei cavalli
+        if (window.gameState && window.gameState.horses && window.gameState.gameConfig) {
+          const prizePositions = window.gameState.gameConfig.prizeDistribution || 1;
+          const finishedHorses = window.gameState.horses.filter(h => h.position > 10);
+          if (finishedHorses.length >= prizePositions) {
+            console.log('🏁⛔ CORSA GIÀ FINITA (controllo posizioni dirette) - NON apro finestra scommesse');
+            console.log(`   Cavalli finiti: ${finishedHorses.length}/${prizePositions} necessari`);
+            console.log(`   Posizioni: ${finishedHorses.map(h => `${h.name}=${h.position}`).join(', ')}`);
+
+            // Assicurati che il flag sia settato anche qui (backup di sicurezza)
+            if (!window.gameState.raceFinished) {
+              window.gameState.raceFinished = true;
+              console.log('🚨 Flag raceFinished non era settato, lo setto ora come backup di sicurezza');
+            }
+            return;
+          }
+        }
+
         // Verifica che la finestra non sia già aperta
         const bettingPanel = document.getElementById('bettingPanel');
         if (bettingPanel && bettingPanel.style.display === 'none') {
