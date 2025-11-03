@@ -573,8 +573,19 @@ export async function joinRoom(gameId) {
 
         // Processa ogni carta dal database
         for (let i = 0; i < game.cards_drawn.length; i++) {
+          // ⛔ CONTROLLO PREVENTIVO: Non processare altre carte se la corsa è già finita
+          if (typeof window.isRaceFinished === 'function' && window.isRaceFinished()) {
+            console.log('🏁⛔ STOP! Corsa finita PRIMA di processare carta, interrompo loop');
+            setTimeout(() => {
+              if (typeof window.endGame === 'function') {
+                window.endGame();
+              }
+            }, 1000);
+            return;
+          }
+
           const card = game.cards_drawn[i];
-          console.log(`🎴 Processando carta ${i + 1}:`, card);
+          console.log(`🎴 Processando carta ${i + 1}/${game.cards_drawn.length}:`, card);
 
           await new Promise(resolve => setTimeout(resolve, 1500));
 
