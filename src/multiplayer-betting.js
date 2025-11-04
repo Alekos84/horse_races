@@ -2,6 +2,9 @@ import { closeBettingWindow, getPlayersStatus, triggerTimerForAll } from './bett
 import { placeBet, getGameBets } from './game-multiplayer.js';
 import { supabase } from './main.js';
 
+// Flag per prevenire acquisti simultanei con click rapidi
+let isPurchasing = false;
+
 // Stato locale del giocatore
 let playerState = {
   selectedHorse: null,
@@ -45,6 +48,9 @@ export async function updateTotalPool(gameId) {
 
 // Apre la finestra scommesse multiplayer (solo per il giocatore corrente)
 export async function openMultiplayerBetting(gameId, roundNumber, username, initialChips, maxBet, startTimer = true) {
+  // Reset flag acquisto quando si apre una nuova finestra
+  isPurchasing = false;
+
   // CONTROLLO PRIORITARIO 1: Non aprire finestra scommesse se la corsa è finita (flag)
   if (window.gameState && window.gameState.raceFinished) {
     console.log('🏁⛔ CORSA FINITA (flag locale) - NON apro finestra scommesse');
@@ -285,6 +291,12 @@ window.updateMultiplayerAmount = function() {
 
 // Compra fiches
 window.buyMultiplayerChips = async function(gameId, roundNumber) {
+  // 🛡️ PROTEZIONE 1: Previeni click multipli simultanei
+  if (isPurchasing) {
+    console.log('⚠️ Acquisto già in corso, ignoro il click');
+    return;
+  }
+
   if (playerState.selectedHorse === null) {
     alert('Seleziona prima un cavallo!');
     return;
@@ -314,6 +326,11 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
     alert(`Importo massimo per finestra: €${maxBet.toFixed(2)}`);
     return;
   }
+
+  // 🛡️ PROTEZIONE 2: Setta il flag e disabilita il bottone
+  isPurchasing = true;
+  const buyButton = document.getElementById('buy-btn');
+  if (buyButton) buyButton.disabled = true;
 
   // Salva puntata nel database
   try {
@@ -362,6 +379,12 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
     }
   } catch (error) {
     alert('Errore acquisto fiches: ' + error.message);
+  } finally {
+    // 🛡️ PROTEZIONE 3: Resetta SEMPRE il flag e riabilita il bottone
+    isPurchasing = false;
+    const buyButton = document.getElementById('buy-btn');
+    if (buyButton) buyButton.disabled = false;
+    console.log('✅ Flag isPurchasing resettato, bottone riabilitato');
   }
 };
 
