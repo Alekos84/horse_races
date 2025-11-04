@@ -321,8 +321,6 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
   const chipPrice = getChipPrice(horse.position);
   const amount = chips * chipPrice;
 
-  const maxBet = window.gameState.gameConfig.maxAmountPerWindow;
-
   // 🛡️ PROTEZIONE 2: Setta il flag e disabilita il bottone
   isPurchasing = true;
   const buyButton = document.getElementById('buy-btn');
@@ -330,23 +328,6 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
 
   // Salva puntata nel database
   try {
-    // 💰 CONTROLLO CRITICO: Verifica il totale già speso in questa finestra
-    const currentUser = await supabase.auth.getUser();
-    if (!currentUser.data.user) {
-      alert('Errore: utente non autenticato');
-      return;
-    }
-
-    const allBets = await getGameBets(gameId);
-    const myBets = allBets.filter(bet => bet.user_id === currentUser.data.user.id);
-    const totalSpent = myBets.reduce((sum, bet) => sum + bet.amount, 0);
-
-    console.log(`💰 Controllo limite: Totale già speso: €${totalSpent.toFixed(2)} + nuovo acquisto: €${amount.toFixed(2)} = €${(totalSpent + amount).toFixed(2)} / Max: €${maxBet.toFixed(2)}`);
-
-    if (totalSpent + amount > maxBet) {
-      alert(`❌ Non puoi superare il limite di €${maxBet.toFixed(2)} per finestra!\n\nHai già speso: €${totalSpent.toFixed(2)}\nNuovo acquisto: €${amount.toFixed(2)}\nTotale: €${(totalSpent + amount).toFixed(2)}`);
-      return;
-    }
     console.log('💾 Salvataggio puntata nel DB:', { gameId, horse: playerState.selectedHorse + 1, amount });
     await placeBet(gameId, playerState.selectedHorse + 1, amount); // +1 perché DB usa 1-based
     console.log('✅ Puntata salvata nel DB');
@@ -377,19 +358,17 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
     // Aggiorna il montepremi totale (somma di tutte le puntate nel DB)
     await updateTotalPool(gameId);
 
-    // Abilita il bottone "Chiudi Finestra" dopo l'acquisto
-    updateCloseButtonState();
+    console.log('🎯 Acquisto completato, chiudo automaticamente finestra scommesse');
 
-    // Solo nel round 1: chiudi automaticamente e triggera timer per tutti
+    // CHIUDI SEMPRE la finestra dopo ogni acquisto (previene acquisti multipli)
+    // Nel round 1, triggera anche il timer per gli altri
     if (roundNumber === 1) {
-      console.log('🎯 Round 1: acquisto completato, chiudo finestra e triggero timer per gli altri');
-
-      // Triggera il timer per TUTTI (incluso questo giocatore che ha appena comprato)
+      console.log('🎯 Round 1: triggero timer per gli altri giocatori');
       await triggerTimerForAll(gameId, roundNumber);
-
-      // Chiudi la finestra di questo giocatore
-      await closeMultiplayerBetting(gameId, roundNumber);
     }
+
+    // Chiudi la finestra di questo giocatore (SEMPRE, in tutti i round)
+    await closeMultiplayerBetting(gameId, roundNumber);
   } catch (error) {
     alert('Errore acquisto fiches: ' + error.message);
   } finally {
