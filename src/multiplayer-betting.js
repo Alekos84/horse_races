@@ -168,7 +168,8 @@ function createMultiplayerBettingInterface(username, gameId, roundNumber) {
     const chipPrice = getChipPrice(horse.position);
     const canBet = canBetOnHorse(horse, horseIndex);
     const hasAlreadyBet = hasAlreadyBetOnHorse(horseIndex);
-    const shouldEnable = canBet || hasAlreadyBet;
+    // Non permettere scommesse su cavalli >= 8, anche se hai già scommesso prima
+    const shouldEnable = (canBet || hasAlreadyBet) && horse.position < 8;
 
     optionsHtml += `
       <div class="horse-option ${shouldEnable ? '' : 'blocked'}"
@@ -298,6 +299,13 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
   }
 
   const horse = window.gameState.horses[playerState.selectedHorse];
+
+  // 🚫 CONTROLLO SICUREZZA: Blocca acquisto se cavallo >= posizione 8
+  if (horse.position >= 8) {
+    alert('⚠️ Non puoi scommettere su questo cavallo: è troppo avanti! (posizione >= 8)');
+    return;
+  }
+
   const chipPrice = getChipPrice(horse.position);
   const amount = chips * chipPrice;
 
@@ -367,11 +375,16 @@ function getChipPrice(position) {
 }
 
 function canBetOnHorse(horse, horseIndex) {
+  // 🚫 BLOCCO PRIORITARIO: Non si può scommettere su cavalli >= posizione 8
+  if (horse.position >= 8) {
+    return false;
+  }
+
   // Controlla se ci sono già 3 cavalli scommessi
   const uniqueHorses = [...new Set(playerState.bets.map(b => b.horseIndex))];
   const hasAlreadyBet = hasAlreadyBetOnHorse(horseIndex);
 
-  // Se ha già scommesso su questo cavallo, può continuare
+  // Se ha già scommesso su questo cavallo, può continuare (solo se position < 8)
   if (hasAlreadyBet) return true;
 
   // Altrimenti controlla il limite di 3 cavalli
