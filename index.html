@@ -1827,13 +1827,14 @@ cardElement.innerHTML = '<img src="' + cardImagePath + '" style="width: 100%; he
 
         function endGame() {
             gameState.isGameActive = false;
-            
+
             var rankedHorses = getRankedHorses();
             var finishedHorses = rankedHorses.filter(function(horse) {
                 return horse.position > 10;
             });
 
-            document.getElementById('cardsSection').style.display = 'none';
+            // Mantieni cardsSection visibile per vedere le carte estratte
+            // document.getElementById('cardsSection').style.display = 'none';
             document.getElementById('bettingPanel').style.display = 'none';
             
             displayResults(rankedHorses);
