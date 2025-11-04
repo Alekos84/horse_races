@@ -322,10 +322,6 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
   const amount = chips * chipPrice;
 
   const maxBet = window.gameState.gameConfig.maxAmountPerWindow;
-  if (amount > maxBet) {
-    alert(`Importo massimo per finestra: €${maxBet.toFixed(2)}`);
-    return;
-  }
 
   // 🛡️ PROTEZIONE 2: Setta il flag e disabilita il bottone
   isPurchasing = true;
@@ -334,6 +330,23 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
 
   // Salva puntata nel database
   try {
+    // 💰 CONTROLLO CRITICO: Verifica il totale già speso in questa finestra
+    const currentUser = await supabase.auth.getUser();
+    if (!currentUser.data.user) {
+      alert('Errore: utente non autenticato');
+      return;
+    }
+
+    const allBets = await getGameBets(gameId);
+    const myBets = allBets.filter(bet => bet.user_id === currentUser.data.user.id);
+    const totalSpent = myBets.reduce((sum, bet) => sum + bet.amount, 0);
+
+    console.log(`💰 Controllo limite: Totale già speso: €${totalSpent.toFixed(2)} + nuovo acquisto: €${amount.toFixed(2)} = €${(totalSpent + amount).toFixed(2)} / Max: €${maxBet.toFixed(2)}`);
+
+    if (totalSpent + amount > maxBet) {
+      alert(`❌ Non puoi superare il limite di €${maxBet.toFixed(2)} per finestra!\n\nHai già speso: €${totalSpent.toFixed(2)}\nNuovo acquisto: €${amount.toFixed(2)}\nTotale: €${(totalSpent + amount).toFixed(2)}`);
+      return;
+    }
     console.log('💾 Salvataggio puntata nel DB:', { gameId, horse: playerState.selectedHorse + 1, amount });
     await placeBet(gameId, playerState.selectedHorse + 1, amount); // +1 perché DB usa 1-based
     console.log('✅ Puntata salvata nel DB');
