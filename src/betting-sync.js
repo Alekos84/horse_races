@@ -285,7 +285,8 @@ async function drawCards(gameId) {
   if (cardsRemaining >= 5) {  // Servono almeno 5 carte per un round
     console.log(`🔄 Preparazione round ${nextRound}... (carte sufficienti: ${cardsRemaining})`);
 
-    // Aspetta che i client abbiano processato le carte (delay di 8 secondi = 5 carte * 1.5s + margine)
+    // Aspetta che i client abbiano processato le carte
+    // Timing: (500ms + 2000ms) × 5 carte = 12.5s + 1.5s margine = 14s
     setTimeout(async () => {
       // CONTROLLO CRITICO 1: Controlla status nel DATABASE
       console.log('🔍 Controllo status nel database prima di aprire round...');
@@ -337,7 +338,7 @@ async function drawCards(gameId) {
         .eq('id', gameId);
 
       console.log(`✅ Round ${nextRound} aperto per le scommesse`);
-    }, 8000);
+    }, 14000);  // Aumentato da 8s a 14s per il nuovo timing carta → cavallo
   } else {
     // 🏁 NON ci sono abbastanza carte per un altro round
     console.log(`⚠️ Carte insufficienti (${cardsRemaining} < 5) - Dichiaro vincitore per posizione`);
@@ -351,7 +352,7 @@ async function drawCards(gameId) {
         .eq('id', gameId);
 
       console.log('🏁 Gioco terminato per esaurimento carte - vincitore dichiarato per posizione');
-    }, 8000);
+    }, 14000);  // Aumentato da 8s a 14s per il nuovo timing carta → cavallo
   }
 }
 

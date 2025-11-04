@@ -587,7 +587,8 @@ export async function joinRoom(gameId) {
           const card = game.cards_drawn[i];
           console.log(`🎴 Processando carta ${i + 1}/${game.cards_drawn.length}:`, card);
 
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          // Delay iniziale tra carte (mezzo secondo)
+          await new Promise(resolve => setTimeout(resolve, 500));
 
           // Trova il cavallo corrispondente al seme della carta
           const horse = window.gameState.horses.find(h => h.suit === card.suit);
@@ -598,20 +599,13 @@ export async function joinRoom(gameId) {
 
           const horseIndex = window.gameState.horses.indexOf(horse);
 
-          // Calcola il movimento
+          // Calcola il movimento (ma NON muovere ancora)
           const movement = CARD_MOVEMENT[card.value] || 0;
           const oldPosition = horse.position;
           const newPosition = Math.max(0, Math.min(20, oldPosition + movement));
 
-          console.log('Carta:', card, 'Cavallo da muovere:', horseIndex, 'Posizione vecchia:', oldPosition, 'Nuova posizione:', newPosition);
-
-          // Aggiorna la posizione nel gameState
-          horse.position = newPosition;
-
-          // Anima il cavallo usando la funzione del gioco locale
-          if (typeof window.animateHorse === 'function') {
-            window.animateHorse(horseIndex, newPosition);
-          }
+          // 🎴 FASE 1: MOSTRA LA CARTA (senza muovere il cavallo)
+          console.log(`🎴 Mostro carta: ${card.value} di ${card.suit}`);
 
           // Mostra la carta estratta
           if (typeof window.displayCurrentCard === 'function') {
@@ -629,9 +623,24 @@ export async function joinRoom(gameId) {
             window.addCardToStack(card);
           }
 
+          // ⏱️ ATTENDI 2 SECONDI prima di muovere il cavallo
+          console.log(`⏱️ Attendo 2 secondi prima di muovere ${horse.name}...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // 🐴 FASE 2: MUOVI IL CAVALLO
+          console.log(`🐴 Muovo ${horse.name}: ${oldPosition} → ${newPosition} (${movement > 0 ? '+' : ''}${movement})`);
+
+          // Aggiorna la posizione nel gameState
+          horse.position = newPosition;
+
+          // Anima il cavallo usando la funzione del gioco locale
+          if (typeof window.animateHorse === 'function') {
+            window.animateHorse(horseIndex, newPosition);
+          }
+
           // Aggiungi al log
           if (typeof window.addLogEntry === 'function') {
-            window.addLogEntry(`🎴 Estratta ${card.value} di ${card.suit}: ${horse.name} si muove di ${movement}`);
+            window.addLogEntry(`🎴 ${card.value} di ${card.suit} → ${horse.name}: ${oldPosition}→${newPosition} (${movement > 0 ? '+' : ''}${movement})`);
           }
 
           // Aggiorna il contatore delle carte
