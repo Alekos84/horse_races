@@ -668,8 +668,15 @@ export async function joinRoom(gameId) {
         const currentRound = game.current_round || 1;
         const nextRound = currentRound + 1;
 
-        if (nextRound <= 8) {
-          console.log(`🎯 Fine round ${currentRound}, preparazione round ${nextRound}...`);
+        // Verifica se ci sono ancora carte nel mazzo
+        const currentCardIndex = window.gameState?.currentCardIndex || 0;
+        const deckLength = window.gameState?.deck?.length || 0;
+        const cardsRemaining = deckLength - currentCardIndex;
+
+        console.log(`🃏 Stato mazzo: ${cardsRemaining} carte rimanenti (${currentCardIndex}/${deckLength} pescate)`);
+
+        if (cardsRemaining >= 5) {  // Servono almeno 5 carte per un round
+          console.log(`🎯 Fine round ${currentRound}, preparazione round ${nextRound}... (carte sufficienti: ${cardsRemaining})`);
 
           setTimeout(async () => {
             // ULTIMO CONTROLLO: Prima di preparare il round, verifica che la corsa non sia finita nel frattempo
@@ -686,6 +693,14 @@ export async function joinRoom(gameId) {
             // - current_round: nextRound
 
             // Il server triggererà un update Realtime che aprirà la finestra per tutti
+          }, 2000);
+        } else {
+          // 🏁 NON ci sono abbastanza carte per un altro round
+          console.log(`⚠️ Carte insufficienti nel mazzo (${cardsRemaining}/${deckLength}) - Fine gioco per esaurimento carte`);
+
+          // Il server (betting-sync.js) dichiarerà finished, che triggerà endGame
+          setTimeout(() => {
+            console.log('🏁 In attesa che il server dichiari il gioco finito...');
           }, 2000);
         }
 

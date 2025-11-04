@@ -278,8 +278,12 @@ async function drawCards(gameId) {
   console.log('✅ Carte salvate nel database');
 
   // Dopo un delay, se ci sono altri round, apri il prossimo round
-  if (nextRound <= 8) {
-    console.log(`🔄 Preparazione round ${nextRound}...`);
+  // Verifica se ci sono ancora abbastanza carte nel mazzo per un altro round
+  const cardsRemaining = deck.length - newCardIndex;
+  console.log(`🃏 Carte rimanenti nel mazzo: ${cardsRemaining}/${deck.length}`);
+
+  if (cardsRemaining >= 5) {  // Servono almeno 5 carte per un round
+    console.log(`🔄 Preparazione round ${nextRound}... (carte sufficienti: ${cardsRemaining})`);
 
     // Aspetta che i client abbiano processato le carte (delay di 8 secondi = 5 carte * 1.5s + margine)
     setTimeout(async () => {
@@ -333,6 +337,20 @@ async function drawCards(gameId) {
         .eq('id', gameId);
 
       console.log(`✅ Round ${nextRound} aperto per le scommesse`);
+    }, 8000);
+  } else {
+    // 🏁 NON ci sono abbastanza carte per un altro round
+    console.log(`⚠️ Carte insufficienti (${cardsRemaining} < 5) - Dichiaro vincitore per posizione`);
+
+    // Aspetta che i client finiscano di processare le ultime carte
+    setTimeout(async () => {
+      // Aggiorna il database come "finished" per far scattare endGame sui client
+      await supabase
+        .from('games')
+        .update({ status: 'finished' })
+        .eq('id', gameId);
+
+      console.log('🏁 Gioco terminato per esaurimento carte - vincitore dichiarato per posizione');
     }, 8000);
   }
 }
