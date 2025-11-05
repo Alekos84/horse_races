@@ -384,18 +384,33 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
 function getChipPrice(position) {
   const basePrice = window.gameState.gameConfig.initialChipValue || 0.20;
 
+  // Debug: Assicurati che position sia un numero
+  const pos = Number(position);
+  console.log(`🔍 getChipPrice: position=${position} (type=${typeof position}), pos=${pos}, basePrice=${basePrice}`);
+
   // 🚫 Posizione 8-9-10: NON acquistabile
-  if (position >= 8) return 0;
+  if (pos >= 8) {
+    console.log(`  → Posizione ${pos} >= 8: NON acquistabile (€0)`);
+    return 0;
+  }
 
   // 💰 Fasce di prezzo:
-  // Pos 7: €0.60 (×3)
-  if (position >= 7) return basePrice * 3;
-  // Pos 5-6: €0.40 (×2)
-  if (position >= 5) return basePrice * 2;
-  // Pos 3-4: €0.30 (×1.5)
-  if (position >= 3) return basePrice * 1.5;
-  // Pos 0-1-2: €0.20 (×1)
-  return basePrice;
+  let price;
+  if (pos >= 7) {
+    price = basePrice * 3;
+    console.log(`  → Posizione ${pos} >= 7: €${price.toFixed(2)} (×3)`);
+  } else if (pos >= 5) {
+    price = basePrice * 2;
+    console.log(`  → Posizione ${pos} >= 5: €${price.toFixed(2)} (×2)`);
+  } else if (pos >= 3) {
+    price = basePrice * 1.5;
+    console.log(`  → Posizione ${pos} >= 3: €${price.toFixed(2)} (×1.5)`);
+  } else {
+    price = basePrice;
+    console.log(`  → Posizione ${pos} < 3: €${price.toFixed(2)} (×1)`);
+  }
+
+  return price;
 }
 
 function canBetOnHorse(horse, horseIndex) {
