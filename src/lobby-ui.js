@@ -3,6 +3,7 @@ import { getCurrentUser } from './auth.js';
 import { supabase } from './main.js';
 import { startBettingRound, closeBettingWindow, subscribeToGameUpdates, getPlayersStatus, startBettingTimer } from './betting-sync.js';
 import { openMultiplayerBetting, updatePlayersStatus, startBettingCountdown, updateTotalPool } from './multiplayer-betting.js';
+import { calculateMultiplayerResults, displayMultiplayerResults } from './multiplayer-results.js';
 
 let currentGameId = null;
 let gameSubscription = null;
@@ -431,6 +432,15 @@ export async function joinRoom(gameId) {
       console.log('🔍 status:', game.status);
       console.log('🔍 Confronto status: game.status === "running"?', game.status === 'running');
 
+      // 🏁 Se lo status è 'finished', mostra i risultati finali
+      if (game.status === 'finished') {
+        console.log('🏁 Gioco terminato, calcolo risultati...');
+        if (typeof window.endMultiplayerGame === 'function') {
+          window.endMultiplayerGame();
+        }
+        return;
+      }
+
       // Se lo status passa a running, chiudi sala d'attesa e apri finestra scommesse
       if (game.status === 'running') {
         console.log('✅ Status è running, procedo con apertura partita...');
@@ -577,8 +587,8 @@ export async function joinRoom(gameId) {
           if (typeof window.isRaceFinished === 'function' && window.isRaceFinished()) {
             console.log('🏁⛔ STOP! Corsa finita PRIMA di processare carta, interrompo loop');
             setTimeout(() => {
-              if (typeof window.endGame === 'function') {
-                window.endGame();
+              if (typeof window.endMultiplayerGame === 'function') {
+                window.endMultiplayerGame();
               }
             }, 1000);
             return;
@@ -662,8 +672,8 @@ export async function joinRoom(gameId) {
           if (typeof window.isRaceFinished === 'function' && window.isRaceFinished()) {
             console.log('🏁 La corsa è finita!');
             setTimeout(() => {
-              if (typeof window.endGame === 'function') {
-                window.endGame();
+              if (typeof window.endMultiplayerGame === 'function') {
+                window.endMultiplayerGame();
               }
             }, 1000);
             return;
@@ -674,8 +684,8 @@ export async function joinRoom(gameId) {
         if (typeof window.isRaceFinished === 'function' && window.isRaceFinished()) {
           console.log('🏁 CORSA FINITA dopo processamento carte - NON preparo prossimo round');
           setTimeout(() => {
-            if (typeof window.endGame === 'function') {
-              window.endGame();
+            if (typeof window.endMultiplayerGame === 'function') {
+              window.endMultiplayerGame();
             }
           }, 1000);
           return;
@@ -1131,5 +1141,37 @@ function subscribeToWaitingRoom(gameId) {
     .subscribe();
 }
 
-// Esponi joinRoom globalmente per i click inline
+/**
+ * Gestisce la fine della partita multiplayer con calcolo delle vincite
+ */
+async function endMultiplayerGame() {
+  console.log('🏁 Fine partita multiplayer - Calcolo risultati...');
+
+  if (!currentGameId) {
+    console.error('❌ Nessun gameId trovato');
+    return;
+  }
+
+  try {
+    // Nascondi il pannello scommesse
+    const bettingPanel = document.getElementById('bettingPanel');
+    if (bettingPanel) {
+      bettingPanel.style.display = 'none';
+    }
+
+    // Calcola i risultati
+    const results = await calculateMultiplayerResults(currentGameId);
+
+    // Mostra i risultati nell'interfaccia
+    displayMultiplayerResults(results);
+
+    console.log('✅ Risultati calcolati e mostrati');
+  } catch (error) {
+    console.error('❌ Errore nel calcolo dei risultati:', error);
+    alert('Errore nel calcolo dei risultati: ' + error.message);
+  }
+}
+
+// Esponi funzioni globalmente per i click inline e il sistema di gioco
 window.joinRoom = joinRoom;
+window.endMultiplayerGame = endMultiplayerGame;
