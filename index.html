@@ -2023,17 +2023,41 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
             // Se è multiplayer, NON resettare tutto - torna solo alla lobby
             if (gameState.isMultiplayer) {
                 console.log('🌐 Fine partita multiplayer - torno alla lobby');
+
+                // Nascondi tutti gli elementi di gioco
                 document.getElementById('racetrack').style.display = 'none';
                 document.getElementById('cardsSection').style.display = 'none';
                 document.getElementById('bettingPanel').style.display = 'none';
                 document.getElementById('gameLog').style.display = 'none';
                 document.getElementById('results').style.display = 'none';
-
-                // Non mostrare gameModeSelection, resta nella lobby
                 document.getElementById('gameModeSelection').style.display = 'none';
+
+                // 🧹 PULIZIA COMPLETA UI - Svuota contenuti vecchia partita
+                document.getElementById('winnerInfo').innerHTML = '';
+                document.getElementById('payoutInfo').innerHTML = '';
+                document.getElementById('logEntries').innerHTML = '';
+                document.getElementById('cardsStack').innerHTML = '';
+
+                // Pulisci racetrack (rimuovi cavalli)
+                const racetrack = document.getElementById('racetrack');
+                const horseTrackElements = racetrack.querySelectorAll('.horse-track');
+                horseTrackElements.forEach(function(track) {
+                    track.remove();
+                });
+
+                // Reset gameState multiplayer
+                gameState.horses = [];
+                gameState.drawnCards = [];
+                gameState.currentCardIndex = 0;
+                gameState.currentWindow = 1;
+                gameState.raceFinished = false;
+                gameState.totalPool = 0;
+
+                // Mostra lobby
                 document.getElementById('lobby-container').style.display = 'block';
 
-                addLogEntry('🏁 Partita multiplayer terminata');
+                console.log('✅ UI completamente pulita - pronta per nuova partita');
+                addLogEntry('🏁 Partita multiplayer terminata - UI resettata');
                 return;
             }
 
@@ -2088,6 +2112,20 @@ winnerHtml += '<div style="font-size: 20px;"><img src="' + horse.imagePath + 'ca
             document.getElementById('results').style.display = 'none';
             document.getElementById('gameConfig').style.display = 'none';
             document.getElementById('participantsConfig').style.display = 'none';
+            document.getElementById('gameModeSelection').style.display = 'none';  // 🔴 Problema #1: Nasconde bottoni modalità
+
+            // 🧹 PULIZIA COMPLETA UI - Svuota contenuti vecchia partita
+            document.getElementById('winnerInfo').innerHTML = '';
+            document.getElementById('payoutInfo').innerHTML = '';
+            document.getElementById('logEntries').innerHTML = '';
+            document.getElementById('cardsStack').innerHTML = '';
+
+            // Pulisci racetrack (rimuovi cavalli)
+            const racetrack = document.getElementById('racetrack');
+            const horseTrackElements = racetrack.querySelectorAll('.horse-track');
+            horseTrackElements.forEach(function(track) {
+                track.remove();
+            });
 
             // Nascondi elementi multiplayer
             document.getElementById('lobby-container').style.display = 'none';
