@@ -1596,10 +1596,10 @@ horseElement.innerHTML = '<img src="' + cardImagePath + '" style="' + imageStyle
                 var movement = CARD_MOVEMENT[card.value];
                 var oldPosition = horse.position;
 
-                if (oldPosition > 10 && movement < 0) {
-                    addLogEntry('🃏 ' + card.value + ' di ' + card.suit + ' → ' + horse.name + ': Già oltre il traguardo, nessun movimento');
+                // 🏁 BLOCCO TRAGUARDO: Cavalli oltre il traguardo (pos > 10) non si muovono MAI
+                if (oldPosition > 10) {
+                    addLogEntry('🃏 ' + card.value + ' di ' + card.suit + ' → ' + horse.name + ': 🏁 Già oltre il traguardo, nessun movimento');
                 } else {
-            var oldPosition = horse.position;
 		    horse.position = Math.max(0, horse.position + movement);
 
 		// Riproduci suono in base al tipo di carta
