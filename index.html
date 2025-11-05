@@ -935,10 +935,17 @@
         function getChipPrice(horsePosition) {
             var basePrice = gameState.gameConfig.initialChipValue;
 
-            // ✅ LOGICA ALLINEATA A MULTIPLAYER: posizione più alta = prezzo più alto
-            if (horsePosition >= 9) return basePrice * 3;
-            if (horsePosition >= 7) return basePrice * 2;
-            if (horsePosition >= 4) return basePrice * 1.5;
+            // 🚫 Posizione 8-9-10: NON acquistabile
+            if (horsePosition >= 8) return 0;
+
+            // 💰 Fasce di prezzo:
+            // Pos 7: €0.60 (×3)
+            if (horsePosition >= 7) return basePrice * 3;
+            // Pos 5-6: €0.40 (×2)
+            if (horsePosition >= 5) return basePrice * 2;
+            // Pos 3-4: €0.30 (×1.5)
+            if (horsePosition >= 3) return basePrice * 1.5;
+            // Pos 0-1-2: €0.20 (×1)
 
             var price = basePrice;
             

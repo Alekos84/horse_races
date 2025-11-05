@@ -143,8 +143,17 @@ window.buyMultiplayerChip = async function(horseIndex) {
 // Calcola prezzo fiche in base alla posizione
 function getChipPrice(position) {
   const basePrice = window.gameState.gameConfig.initialChipValue || 0.20;
-  if (position >= 9) return basePrice * 3;
-  if (position >= 7) return basePrice * 2;
-  if (position >= 4) return basePrice * 1.5;
+
+  // 🚫 Posizione 8-9-10: NON acquistabile
+  if (position >= 8) return 0;
+
+  // 💰 Fasce di prezzo:
+  // Pos 7: €0.60 (×3)
+  if (position >= 7) return basePrice * 3;
+  // Pos 5-6: €0.40 (×2)
+  if (position >= 5) return basePrice * 2;
+  // Pos 3-4: €0.30 (×1.5)
+  if (position >= 3) return basePrice * 1.5;
+  // Pos 0-1-2: €0.20 (×1)
   return basePrice;
 }
