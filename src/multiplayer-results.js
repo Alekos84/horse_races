@@ -14,7 +14,8 @@ const PRIZE_DISTRIBUTIONS = {
  * @returns {Promise<Object>} - Risultati con vincitori, montepremi, dettagli giocatori
  */
 export async function calculateMultiplayerResults(gameId) {
-  console.log('💰 Inizio calcolo risultati per partita:', gameId);
+  console.log('💰 ============ INIZIO CALCOLO RISULTATI ============');
+  console.log('💰 Game ID:', gameId);
 
   // 1. Leggi configurazione partita
   const { data: game, error: gameError } = await supabase
@@ -24,16 +25,19 @@ export async function calculateMultiplayerResults(gameId) {
     .single();
 
   if (gameError) {
-    console.error('Errore lettura configurazione:', gameError);
+    console.error('❌ Errore lettura configurazione:', gameError);
     throw gameError;
   }
 
+  console.log('✅ Configurazione partita:', game);
   const prizePositions = game.prize_distribution || 1;
   console.log(`🏆 Distribuzione premi: ${prizePositions} posizioni vincenti`);
 
   // 2. Leggi tutte le puntate della partita
+  console.log('📊 Leggo puntate dal database...');
   const bets = await getGameBets(gameId);
   console.log(`📊 Puntate totali: ${bets.length}`);
+  console.log('📊 Dettaglio puntate:', bets);
 
   // 3. Calcola il montepremi totale
   const totalPool = bets.reduce((sum, bet) => sum + bet.amount, 0);
@@ -233,10 +237,18 @@ export function displayMultiplayerResults(results) {
   winnerInfo.innerHTML = winnerHtml;
 
   // 2. RISULTATI GIOCATORI
+  console.log('🎨 Creo HTML risultati giocatori...');
+  console.log('🎨 PlayerResults:', results.playerResults);
+
   let payoutHtml = '<h4>💰 Risultati Giocatori:</h4>';
   payoutHtml += `<div style="background: rgba(76,175,80,0.2); padding: 10px; margin: 10px 0; border-radius: 8px; text-align: center;">
     <strong>Montepremi Totale: €${results.totalPool.toFixed(2)}</strong>
   </div>`;
+
+  if (results.playerResults.length === 0) {
+    console.log('⚠️ Nessun giocatore nei risultati!');
+    payoutHtml += '<p style="text-align: center; color: #FFA500;">⚠️ Nessuna puntata trovata</p>';
+  }
 
   results.playerResults.forEach((player, index) => {
     const isWinner = player.totalWon > 0;

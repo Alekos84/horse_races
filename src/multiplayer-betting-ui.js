@@ -36,7 +36,9 @@ export async function createMultiplayerBettingInterface() {
 
   // Mostra tutti i cavalli
   window.gameState.horses.forEach((horse, horseIndex) => {
+    console.log(`🐴 UI: ${horse.name}: posizione=${horse.position} (type=${typeof horse.position})`);
     const chipPrice = getChipPrice(horse.position);
+    console.log(`💰 UI: Prezzo calcolato per ${horse.name}: €${chipPrice.toFixed(2)}`);
     playerHtml += `
       <div class="horse-option" id="option-${horseIndex}" onclick="selectMultiplayerHorse(${horseIndex})">
         <div class="horse-option-header">

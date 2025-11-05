@@ -171,7 +171,10 @@ function createMultiplayerBettingInterface(username, gameId, roundNumber) {
   let optionsHtml = '<div class="horse-options" id="player-horses">';
 
   window.gameState.horses.forEach((horse, horseIndex) => {
+    console.log(`🐴 ${horse.name}: posizione=${horse.position} (type=${typeof horse.position})`);
     const chipPrice = getChipPrice(horse.position);
+    console.log(`💰 Prezzo calcolato per ${horse.name}: €${chipPrice.toFixed(2)}`);
+
     const canBet = canBetOnHorse(horse, horseIndex);
     const hasAlreadyBet = hasAlreadyBetOnHorse(horseIndex);
     // Non permettere scommesse su cavalli >= 8, anche se hai già scommesso prima
