@@ -668,6 +668,10 @@ export async function joinRoom(gameId) {
             cardsDrawnEl.textContent = window.gameState.totalCardsProcessed;
           }
 
+          // ⏱️ PAUSA di 1 secondo dopo il movimento, prima della prossima carta
+          console.log(`⏱️ Attendo 1 secondo prima della prossima carta...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
           // Controlla se la corsa è finita
           if (typeof window.isRaceFinished === 'function' && window.isRaceFinished()) {
             console.log('🏁 La corsa è finita!');
