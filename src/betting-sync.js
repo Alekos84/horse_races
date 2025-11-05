@@ -286,7 +286,7 @@ async function drawCards(gameId) {
     console.log(`🔄 Preparazione round ${nextRound}... (carte sufficienti: ${cardsRemaining})`);
 
     // Aspetta che i client abbiano processato le carte
-    // Timing: (500ms + 2000ms + 1000ms) × 5 carte = 17.5s + 1.5s margine = 19s
+    // Timing: (500ms + 2000ms + 2000ms) × 5 carte = 22.5s + 1.5s margine = 24s
     setTimeout(async () => {
       // CONTROLLO CRITICO 1: Controlla status nel DATABASE
       console.log('🔍 Controllo status nel database prima di aprire round...');
@@ -338,7 +338,7 @@ async function drawCards(gameId) {
         .eq('id', gameId);
 
       console.log(`✅ Round ${nextRound} aperto per le scommesse`);
-    }, 19000);  // Aumentato da 14s a 19s: (500ms + 2000ms + 1000ms) × 5 carte + margine
+    }, 24000);  // (500ms + 2000ms + 2000ms) × 5 carte + margine = 24s
   } else {
     // 🏁 NON ci sono abbastanza carte per un altro round
     console.log(`⚠️ Carte insufficienti (${cardsRemaining} < 5) - Dichiaro vincitore per posizione`);
@@ -352,7 +352,7 @@ async function drawCards(gameId) {
         .eq('id', gameId);
 
       console.log('🏁 Gioco terminato per esaurimento carte - vincitore dichiarato per posizione');
-    }, 19000);  // Aumentato da 14s a 19s: (500ms + 2000ms + 1000ms) × 5 carte + margine
+    }, 24000);  // (500ms + 2000ms + 2000ms) × 5 carte + margine = 24s
   }
 }
 

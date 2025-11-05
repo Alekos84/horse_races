@@ -668,9 +668,9 @@ export async function joinRoom(gameId) {
             cardsDrawnEl.textContent = window.gameState.totalCardsProcessed;
           }
 
-          // ⏱️ PAUSA di 1 secondo dopo il movimento, prima della prossima carta
-          console.log(`⏱️ Attendo 1 secondo prima della prossima carta...`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // ⏱️ PAUSA di 2 secondi dopo il movimento, prima della prossima carta
+          console.log(`⏱️ Attendo 2 secondi prima della prossima carta...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
 
           // Controlla se la corsa è finita
           if (typeof window.isRaceFinished === 'function' && window.isRaceFinished()) {
