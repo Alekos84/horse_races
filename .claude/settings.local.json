@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(curl:*)",
-      "mcp__supabase__apply_migration"
+      "mcp__supabase__apply_migration",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(__NEW_LINE__ Hai già speso: €1.50)",
+      "Bash(Nuovo acquisto: €0.60)",
+      "Bash(Totale: €2.10\"\n\nQuesto previene definitivamente acquisti oltre il limite,\nanche con click separati e successivi.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

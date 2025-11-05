@@ -934,15 +934,13 @@
 
         function getChipPrice(horsePosition) {
             var basePrice = gameState.gameConfig.initialChipValue;
-            var multiplier = 1;
-            
-            if (horsePosition <= 2) multiplier = 1;
-            else if (horsePosition <= 4) multiplier = 1.5;
-            else if (horsePosition <= 6) multiplier = 2;
-            else if (horsePosition === 7) multiplier = 2.5;
-            else return 0;
-            
-            var price = basePrice * multiplier;
+
+            // ✅ LOGICA ALLINEATA A MULTIPLAYER: posizione più alta = prezzo più alto
+            if (horsePosition >= 9) return basePrice * 3;
+            if (horsePosition >= 7) return basePrice * 2;
+            if (horsePosition >= 4) return basePrice * 1.5;
+
+            var price = basePrice;
             
             // Arrotonda a 0.10 più vicino
             var rounded = Math.round(price * 10) / 10;
