@@ -60,10 +60,12 @@ export async function calculateMultiplayerResults(gameId) {
 
   console.log('🏆 Cavalli vincitori:');
   winningHorses.forEach((horse, index) => {
-    const horseNumber = window.gameState.horses.indexOf(horse) + 1;
+    // Trova l'indice del cavallo nell'array originale usando il suit
+    const horseIndex = window.gameState.horses.findIndex(h => h.suit === horse.suit);
+    const horseNumber = horseIndex + 1;  // Il DB usa 1-based indexing
     const horseBets = bets.filter(bet => bet.horse_number === horseNumber);
     const totalBetsOnHorse = horseBets.reduce((sum, bet) => sum + bet.amount, 0);
-    console.log(`  ${index + 1}° posto: ${horse.name} (Cavallo #${horseNumber}) - Puntate totali: €${totalBetsOnHorse.toFixed(2)}`);
+    console.log(`  ${index + 1}° posto: ${horse.name} (Suit: ${horse.suit}, Cavallo #${horseNumber}) - Puntate totali: €${totalBetsOnHorse.toFixed(2)}`);
   });
 
   // 6. Calcola vincite per ogni giocatore
@@ -79,12 +81,15 @@ export async function calculateMultiplayerResults(gameId) {
 
   return {
     totalPool,
-    winners: winningHorses.map((horse, index) => ({
-      position: index + 1,
-      horse: horse,
-      horseNumber: window.gameState.horses.indexOf(horse) + 1,
-      percentage: percentages[index]
-    })),
+    winners: winningHorses.map((horse, index) => {
+      const horseIndex = window.gameState.horses.findIndex(h => h.suit === horse.suit);
+      return {
+        position: index + 1,
+        horse: horse,
+        horseNumber: horseIndex + 1,
+        percentage: percentages[index]
+      };
+    }),
     playerResults,
     prizePositions
   };
@@ -117,7 +122,9 @@ function calculatePlayerWinnings(bets, winningHorses, totalPool, percentages) {
 
     // Per ogni cavallo vincitore, calcola la quota del giocatore
     winningHorses.forEach((horse, index) => {
-      const horseNumber = window.gameState.horses.indexOf(horse) + 1;
+      // Trova l'indice del cavallo nell'array originale usando il suit
+      const horseIndex = window.gameState.horses.findIndex(h => h.suit === horse.suit);
+      const horseNumber = horseIndex + 1;  // Il DB usa 1-based indexing
 
       // Totale puntato su questo cavallo da TUTTI i giocatori
       const totalBetsOnHorse = bets
@@ -140,7 +147,7 @@ function calculatePlayerWinnings(bets, winningHorses, totalPool, percentages) {
         const playerWinFromHorse = positionPrize * proportion;
         totalWon += playerWinFromHorse;
 
-        console.log(`  💰 ${player.username} vince €${playerWinFromHorse.toFixed(2)} da ${horse.name} (${proportion.toFixed(2)}% delle puntate)`);
+        console.log(`  💰 ${player.username} vince €${playerWinFromHorse.toFixed(2)} da ${horse.name} (${(proportion * 100).toFixed(2)}% delle puntate su questo cavallo)`);
       }
     });
 
