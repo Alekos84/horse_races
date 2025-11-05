@@ -63,13 +63,23 @@ export async function calculateMultiplayerResults(gameId) {
   const winningHorses = finishedHorses.slice(0, Math.min(prizePositions, finishedHorses.length));
 
   console.log('🏆 Cavalli vincitori:');
+  console.log('🔍 Array originale cavalli:', window.gameState.horses.map((h, i) => `#${i+1}: ${h.name} (suit="${h.suit}")`));
+
   winningHorses.forEach((horse, index) => {
+    console.log(`\n🐴 Analizzo vincitore #${index + 1}: ${horse.name} (suit="${horse.suit}")`);
+
     // Trova l'indice del cavallo nell'array originale usando il suit
     const horseIndex = window.gameState.horses.findIndex(h => h.suit === horse.suit);
+    console.log(`  🔍 findIndex(suit="${horse.suit}"): ${horseIndex}`);
+
     const horseNumber = horseIndex + 1;  // Il DB usa 1-based indexing
+    console.log(`  📍 horse_number nel DB: ${horseNumber}`);
+
     const horseBets = bets.filter(bet => bet.horse_number === horseNumber);
+    console.log(`  💰 Puntate su questo cavallo (horse_number=${horseNumber}):`, horseBets);
+
     const totalBetsOnHorse = horseBets.reduce((sum, bet) => sum + bet.amount, 0);
-    console.log(`  ${index + 1}° posto: ${horse.name} (Suit: ${horse.suit}, Cavallo #${horseNumber}) - Puntate totali: €${totalBetsOnHorse.toFixed(2)}`);
+    console.log(`  💵 Totale puntato: €${totalBetsOnHorse.toFixed(2)}`);
   });
 
   // 6. Calcola vincite per ogni giocatore
@@ -126,19 +136,26 @@ function calculatePlayerWinnings(bets, winningHorses, totalPool, percentages) {
 
     // Per ogni cavallo vincitore, calcola la quota del giocatore
     winningHorses.forEach((horse, index) => {
+      console.log(`\n  🐴 Calcolo vincite per ${player.username} su ${horse.name}...`);
+
       // Trova l'indice del cavallo nell'array originale usando il suit
       const horseIndex = window.gameState.horses.findIndex(h => h.suit === horse.suit);
+      console.log(`    🔍 findIndex(suit="${horse.suit}"): ${horseIndex}`);
+
       const horseNumber = horseIndex + 1;  // Il DB usa 1-based indexing
+      console.log(`    📍 horse_number: ${horseNumber}`);
 
       // Totale puntato su questo cavallo da TUTTI i giocatori
       const totalBetsOnHorse = bets
         .filter(bet => bet.horse_number === horseNumber)
         .reduce((sum, bet) => sum + bet.amount, 0);
+      console.log(`    💵 Totale puntato da TUTTI su horse_number ${horseNumber}: €${totalBetsOnHorse.toFixed(2)}`);
 
       // Quanto ha puntato QUESTO giocatore su questo cavallo
       const playerBetsOnHorse = player.bets
         .filter(bet => bet.horse_number === horseNumber)
         .reduce((sum, bet) => sum + bet.amount, 0);
+      console.log(`    💰 Puntato da ${player.username} su horse_number ${horseNumber}: €${playerBetsOnHorse.toFixed(2)}`);
 
       if (playerBetsOnHorse > 0 && totalBetsOnHorse > 0) {
         // Calcola proporzione del giocatore sul cavallo vincitore
@@ -151,7 +168,9 @@ function calculatePlayerWinnings(bets, winningHorses, totalPool, percentages) {
         const playerWinFromHorse = positionPrize * proportion;
         totalWon += playerWinFromHorse;
 
-        console.log(`  💰 ${player.username} vince €${playerWinFromHorse.toFixed(2)} da ${horse.name} (${(proportion * 100).toFixed(2)}% delle puntate su questo cavallo)`);
+        console.log(`    🎉 ${player.username} vince €${playerWinFromHorse.toFixed(2)} da ${horse.name} (${(proportion * 100).toFixed(2)}% delle puntate)`);
+      } else {
+        console.log(`    ❌ ${player.username} NON ha puntato su questo cavallo vincitore`);
       }
     });
 
