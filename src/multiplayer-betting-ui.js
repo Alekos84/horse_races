@@ -119,8 +119,8 @@ window.buyMultiplayerChip = async function(horseIndex) {
       return;
     }
 
-    // Salva la puntata nel database
-    await placeBet(gameId, horseIndex + 1, chipPrice); // horseIndex+1 perché il DB usa 1-based
+    // Salva la puntata nel database (1 fiche alla volta)
+    await placeBet(gameId, horseIndex + 1, chipPrice, 1); // horseIndex+1 perché il DB usa 1-based
 
     // Aggiorna UI locale
     const chipsDisplay = document.getElementById(`chips-${horseIndex}`);

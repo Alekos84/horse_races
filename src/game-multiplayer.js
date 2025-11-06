@@ -53,7 +53,7 @@ export async function getGameByInviteCode(inviteCode) {
 }
 
 // Piazza una puntata
-export async function placeBet(gameId, horseNumber, amount) {
+export async function placeBet(gameId, horseNumber, amount, chips = 1) {
   const user = await supabase.auth.getUser();
   if (!user.data.user) throw new Error('Devi essere loggato');
 
@@ -64,7 +64,8 @@ export async function placeBet(gameId, horseNumber, amount) {
     game_id: gameId,
     user_id: user.data.user.id,
     horse_number: horseNumber,
-    amount: amount
+    amount: amount,
+    chips: chips
   });
 
   // Prima recupera la puntata esistente per questo cavallo (se esiste)
@@ -78,6 +79,9 @@ export async function placeBet(gameId, horseNumber, amount) {
 
   // Se esiste, somma al totale esistente
   const newAmount = existingBet ? existingBet.amount + amount : amount;
+  const newChips = existingBet ? (existingBet.chips || 0) + chips : chips;
+
+  console.log(`📊 Aggiorno puntata: €${newAmount.toFixed(2)} (${newChips} fiches)`);
 
   // Usa UPSERT per aggiornare/creare la puntata per questo cavallo
   const { data, error } = await supabase
@@ -86,7 +90,8 @@ export async function placeBet(gameId, horseNumber, amount) {
       game_id: gameId,
       user_id: user.data.user.id,
       horse_number: horseNumber,
-      amount: newAmount
+      amount: newAmount,
+      chips: newChips
     }, {
       onConflict: 'game_id,user_id,horse_number'
     })

@@ -568,18 +568,12 @@ async function updatePlayersStatus(gameId, roundNumber) {
         betsByHorse[horseIndex] = { amount: 0, chips: 0 };
       }
       betsByHorse[horseIndex].amount += bet.amount;
+      // Leggi chips direttamente dal database invece di calcolarlo
+      const chipsFromDB = bet.chips || Math.round(bet.amount / 0.20); // Fallback se chips non esiste
+      betsByHorse[horseIndex].chips += chipsFromDB;
       totalSpent += bet.amount;
       lastBet = bet.amount; // Ultima puntata singola (approssimazione)
-    });
-
-    // Calcola numero fiches DOPO aver sommato tutti gli importi
-    Object.entries(betsByHorse).forEach(([horseIndex, data]) => {
-      const horse = window.gameState?.horses?.[parseInt(horseIndex)];
-      if (horse) {
-        const chipPrice = getChipPrice(horse.position);
-        data.chips = Math.round(data.amount / chipPrice);
-        console.log(`  📊 ${horse.name}: ${data.chips} fiches (€${data.amount.toFixed(2)} / €${chipPrice.toFixed(2)})`);
-      }
+      console.log(`  📊 Puntata su cavallo #${bet.horse_number}: €${bet.amount.toFixed(2)}, ${chipsFromDB} fiches (totale cavallo: ${betsByHorse[horseIndex].chips})`);
     });
 
     // Crea riepilogo fiches per cavallo
