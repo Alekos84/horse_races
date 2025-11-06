@@ -843,19 +843,9 @@ async function loadRoomData(gameId) {
                 betsByHorse[horseIndex] = { amount: 0, chips: 0 };
               }
               betsByHorse[horseIndex].amount += bet.amount;
-            });
-
-            // Calcola numero fiches per ogni cavallo
-            Object.entries(betsByHorse).forEach(([horseIndex, data]) => {
-              const horse = window.gameState?.horses?.[parseInt(horseIndex)];
-              if (horse) {
-                const basePrice = window.gameState.gameConfig.initialChipValue || 0.20;
-                const chipPrice = horse.position >= 9 ? basePrice * 3 :
-                                  horse.position >= 7 ? basePrice * 2 :
-                                  horse.position >= 4 ? basePrice * 1.5 :
-                                  basePrice;
-                data.chips = Math.round(data.amount / chipPrice);
-              }
+              // ✅ Leggi chips direttamente dal database (salvato quando la puntata è stata fatta)
+              const chipsFromDB = bet.chips || 0;
+              betsByHorse[horseIndex].chips += chipsFromDB;
             });
 
             // Crea badge fiches

@@ -30,8 +30,14 @@ export async function calculateMultiplayerResults(gameId) {
   }
 
   console.log('✅ Configurazione partita:', game);
-  const prizePositions = game.prize_distribution || 1;
-  console.log(`🏆 Distribuzione premi: ${prizePositions} posizioni vincenti`);
+
+  // Converti stringa prize_distribution in numero
+  let prizePositions = 1;
+  const prizeDistString = game.prize_distribution || 'winner-takes-all';
+  if (prizeDistString === 'top-2') prizePositions = 2;
+  else if (prizeDistString === 'top-3') prizePositions = 3;
+
+  console.log(`🏆 Distribuzione premi: ${prizeDistString} → ${prizePositions} posizioni vincenti`);
 
   // 2. Leggi tutte le puntate della partita
   console.log('📊 Leggo puntate dal database...');
