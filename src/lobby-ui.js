@@ -4,6 +4,7 @@ import { supabase } from './main.js';
 import { startBettingRound, closeBettingWindow, subscribeToGameUpdates, getPlayersStatus, startBettingTimer } from './betting-sync.js';
 import { openMultiplayerBetting, updatePlayersStatus, startBettingCountdown, updateTotalPool } from './multiplayer-betting.js';
 import { calculateMultiplayerResults, displayMultiplayerResults } from './multiplayer-results.js';
+import { GameSounds, playSoundForCardAndMovement, playSoundIfVictory } from './sounds.js';
 
 let currentGameId = null;
 let gameSubscription = null;
@@ -621,6 +622,9 @@ export async function joinRoom(gameId) {
             window.displayCurrentCard(card);
           }
 
+          // 🔊 Suono: carta estratta
+          GameSounds.cardFlip();
+
           // Aggiungi la carta all'array drawnCards PRIMA di aggiungerla allo stack
           if (!window.gameState.drawnCards) {
             window.gameState.drawnCards = [];
@@ -654,6 +658,10 @@ export async function joinRoom(gameId) {
             if (typeof window.animateHorse === 'function') {
               window.animateHorse(horseIndex, newPosition);
             }
+
+            // 🔊 Suoni: movimento cavallo e tensione/vittoria
+            playSoundForCardAndMovement(card.value, oldPosition, newPosition);
+            playSoundIfVictory(newPosition);
 
             // Aggiungi al log
             if (typeof window.addLogEntry === 'function') {
