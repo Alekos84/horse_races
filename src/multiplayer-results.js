@@ -4,7 +4,7 @@ import { getGameBets } from './game-multiplayer.js';
 // Percentuali di distribuzione del montepremi
 const PRIZE_DISTRIBUTIONS = {
   1: [100],        // Solo 1° posto: 100%
-  2: [60, 40],     // 1° e 2°: 60% + 40%
+  2: [70, 30],     // 1° e 2°: 70% + 30%
   3: [50, 30, 20]  // 1°, 2° e 3°: 50% + 30% + 20%
 };
 
