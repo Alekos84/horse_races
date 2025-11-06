@@ -99,17 +99,49 @@ export async function calculateMultiplayerResults(gameId) {
     console.log(`  ${result.username}: Speso €${result.totalSpent.toFixed(2)} - Vinto €${result.totalWon.toFixed(2)} - Profitto €${result.profit.toFixed(2)}`);
   });
 
+  // Calcola info dettagliate per ogni cavallo vincente
+  const winnersDetailed = winningHorses.map((horse, index) => {
+    const horseIndex = window.gameState.horses.findIndex(h => h.suit === horse.suit);
+    const horseNumber = horseIndex + 1;
+
+    // Totale puntato su questo cavallo da TUTTI
+    const totalBetsOnHorse = bets
+      .filter(bet => bet.horse_number === horseNumber)
+      .reduce((sum, bet) => sum + bet.amount, 0);
+
+    // Totale fiches su questo cavallo da TUTTI
+    const totalChipsOnHorse = bets
+      .filter(bet => bet.horse_number === horseNumber)
+      .reduce((sum, bet) => sum + (bet.chips || 0), 0);
+
+    // Premio per questa posizione
+    const positionPrize = totalPool * (percentages[index] / 100);
+
+    // Info per ogni giocatore su questo cavallo
+    const playerChipsOnHorse = {};
+    bets.filter(bet => bet.horse_number === horseNumber).forEach(bet => {
+      const username = bet.profiles?.username || 'Sconosciuto';
+      if (!playerChipsOnHorse[username]) {
+        playerChipsOnHorse[username] = 0;
+      }
+      playerChipsOnHorse[username] += (bet.chips || 0);
+    });
+
+    return {
+      position: index + 1,
+      horse: horse,
+      horseNumber: horseNumber,
+      percentage: percentages[index],
+      positionPrize: positionPrize,
+      totalBetsOnHorse: totalBetsOnHorse,
+      totalChipsOnHorse: totalChipsOnHorse,
+      playerChipsOnHorse: playerChipsOnHorse
+    };
+  });
+
   return {
     totalPool,
-    winners: winningHorses.map((horse, index) => {
-      const horseIndex = window.gameState.horses.findIndex(h => h.suit === horse.suit);
-      return {
-        position: index + 1,
-        horse: horse,
-        horseNumber: horseIndex + 1,
-        percentage: percentages[index]
-      };
-    }),
+    winners: winnersDetailed,
     playerResults,
     prizePositions
   };
@@ -218,7 +250,7 @@ function getRankedHorses() {
 }
 
 /**
- * Mostra i risultati nell'interfaccia
+ * Mostra i risultati nell'interfaccia con dettaglio fiches per cavallo
  */
 export function displayMultiplayerResults(results) {
   console.log('🎨 Mostrando risultati nell\'interfaccia');
@@ -235,23 +267,45 @@ export function displayMultiplayerResults(results) {
   // Mostra la sezione risultati
   resultsDiv.style.display = 'block';
 
-  // 1. CLASSIFICA CAVALLI
-  let winnerHtml = '<h4>🏆 Classifica Finale:</h4>';
+  // 1. PODIO CON CAVALLI VINCENTI DISTANZIATI
+  let winnerHtml = '<h4 style="text-align: center; color: #FFD700; margin-bottom: 20px;">🏁 PODIO 🏁</h4>';
 
-  if (results.winners.length > 0) {
-    winnerHtml += '<div style="background: rgba(255,215,0,0.2); padding: 15px; margin: 10px 0; border-radius: 10px; border: 2px solid #FFD700;">';
-    winnerHtml += '<h5 style="text-align: center; color: #FFD700; margin-bottom: 10px;">🏁 PODIO 🏁</h5>';
+  if (results.winners.length === 0) {
+    winnerHtml += '<p style="text-align: center; color: #FFA500;">Nessun cavallo ha completato la corsa</p>';
+  } else {
+    // Container per podio con cavalli distanziati
+    winnerHtml += '<div style="display: flex; justify-content: space-around; align-items: flex-start; background: rgba(255,215,0,0.15); padding: 20px; border-radius: 12px; border: 2px solid #FFD700; margin-bottom: 20px;">';
 
     results.winners.forEach(winner => {
-      const { position, horse, percentage } = winner;
+      const { position, horse, percentage, positionPrize, totalChipsOnHorse, playerChipsOnHorse } = winner;
       const medalEmoji = position === 1 ? '🥇' : position === 2 ? '🥈' : '🥉';
 
       winnerHtml += `
-        <div style="display: inline-block; margin: 5px 10px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; text-align: center; border: 3px solid ${horse.color};">
-          <div style="font-size: 24px;">${medalEmoji}</div>
-          <div style="font-weight: bold;">${position}° ${horse.name}</div>
-          <div style="font-size: 20px;"><img src="${horse.imagePath}cavallo.png" style="width: 20px; height: auto; vertical-align: middle;"></div>
-          <div style="font-size: 12px; color: #FFD700;">${percentage}% premio</div>
+        <div style="flex: 1; text-align: center; padding: 10px;">
+          <!-- Cavallo vincente -->
+          <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; border: 3px solid ${horse.color}; margin-bottom: 10px;">
+            <div style="font-size: 32px; margin-bottom: 5px;">${medalEmoji}</div>
+            <div style="font-weight: bold; font-size: 18px; color: white;">${position}° ${horse.name}</div>
+            <div style="margin: 5px 0;"><img src="${horse.imagePath}cavallo.png" style="width: 30px; height: auto;"></div>
+          </div>
+
+          <!-- Quota montepremi -->
+          <div style="background: rgba(76,175,80,0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="font-size: 14px; color: #FFD700; font-weight: bold;">${percentage}% del montepremi</div>
+            <div style="font-size: 20px; color: #4CAF50; font-weight: bold;">€${positionPrize.toFixed(2)}</div>
+            <div style="font-size: 11px; color: #ccc; margin-top: 5px;">Totale fiches: ${totalChipsOnHorse}</div>
+          </div>
+
+          <!-- Fiches per giocatore su questo cavallo -->
+          <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; min-height: 60px;">
+            <div style="font-size: 12px; color: #FFD700; margin-bottom: 8px; font-weight: bold;">Fiches giocatori:</div>
+            ${Object.entries(playerChipsOnHorse).map(([username, chips]) => `
+              <div style="font-size: 11px; color: white; margin: 3px 0; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                <strong>${username}:</strong> ${chips} ${chips === 1 ? 'fiche' : 'fiches'}
+              </div>
+            `).join('')}
+            ${Object.keys(playerChipsOnHorse).length === 0 ? '<div style="font-size: 11px; color: #999;">Nessuna puntata</div>' : ''}
+          </div>
         </div>
       `;
     });
@@ -261,50 +315,43 @@ export function displayMultiplayerResults(results) {
 
   winnerInfo.innerHTML = winnerHtml;
 
-  // 2. RISULTATI GIOCATORI
-  console.log('🎨 Creo HTML risultati giocatori...');
-  console.log('🎨 PlayerResults:', results.playerResults);
-
-  let payoutHtml = '<h4>💰 Risultati Giocatori:</h4>';
-  payoutHtml += `<div style="background: rgba(76,175,80,0.2); padding: 10px; margin: 10px 0; border-radius: 8px; text-align: center;">
-    <strong>Montepremi Totale: €${results.totalPool.toFixed(2)}</strong>
+  // 2. MONTEPREMI TOTALE
+  let payoutHtml = `<div style="background: rgba(76,175,80,0.2); padding: 12px; margin: 15px 0; border-radius: 8px; text-align: center; border: 2px solid #4CAF50;">
+    <strong style="font-size: 18px; color: #4CAF50;">💰 Montepremi Totale: €${results.totalPool.toFixed(2)}</strong>
   </div>`;
+
+  // 3. CLASSIFICA GIOCATORI PER PROFITTO
+  payoutHtml += '<h4 style="text-align: center; margin-top: 25px; margin-bottom: 15px;">📊 Classifica Finale</h4>';
 
   if (results.playerResults.length === 0) {
     console.log('⚠️ Nessun giocatore nei risultati!');
     payoutHtml += '<p style="text-align: center; color: #FFA500;">⚠️ Nessuna puntata trovata</p>';
-  }
+  } else {
+    results.playerResults.forEach((player, index) => {
+      const isProfit = player.profit > 0;
+      const bgColor = isProfit ? 'rgba(76,175,80,0.2)' : 'rgba(244,67,54,0.2)';
+      const borderColor = isProfit ? '#4CAF50' : '#F44336';
+      const profitColor = isProfit ? '#4CAF50' : '#F44336';
 
-  results.playerResults.forEach((player, index) => {
-    const isWinner = player.totalWon > 0;
-    const isProfit = player.profit > 0;
-
-    const bgColor = isWinner ?
-      (isProfit ? 'rgba(76,175,80,0.2)' : 'rgba(255,193,7,0.2)') :
-      'rgba(244,67,54,0.2)';
-
-    const borderColor = isWinner ?
-      (isProfit ? '#4CAF50' : '#FFC107') :
-      '#F44336';
-
-    payoutHtml += `
-      <div style="background: ${bgColor}; padding: 12px; margin: 8px 0; border-radius: 8px; border-left: 4px solid ${borderColor};">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <strong>${index + 1}. ${player.username}</strong>
-            ${isWinner && isProfit ? '🏆' : isWinner ? '💰' : '❌'}
-          </div>
-          <div style="text-align: right;">
-            <div>Speso: €${player.totalSpent.toFixed(2)}</div>
-            <div>Vinto: €${player.totalWon.toFixed(2)}</div>
-            <div style="font-weight: bold; color: ${isProfit ? '#4CAF50' : '#F44336'};">
-              Profitto: €${player.profit >= 0 ? '+' : ''}${player.profit.toFixed(2)}
+      payoutHtml += `
+        <div style="background: ${bgColor}; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 5px solid ${borderColor};">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 16px;">${index + 1}. ${player.username}</strong>
+              ${isProfit ? ' 🏆' : ' 💸'}
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 13px; color: #ccc;">Speso: €${player.totalSpent.toFixed(2)}</div>
+              <div style="font-size: 13px; color: #ccc;">Vinto: €${player.totalWon.toFixed(2)}</div>
+              <div style="font-weight: bold; font-size: 18px; color: ${profitColor}; margin-top: 5px;">
+                ${isProfit ? '▲' : '▼'} €${player.profit >= 0 ? '+' : ''}${player.profit.toFixed(2)}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    `;
-  });
+      `;
+    });
+  }
 
   payoutInfo.innerHTML = payoutHtml;
 

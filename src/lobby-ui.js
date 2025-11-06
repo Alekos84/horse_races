@@ -622,8 +622,8 @@ export async function joinRoom(gameId) {
             window.displayCurrentCard(card);
           }
 
-          // 🔊 Suono: carta estratta
-          GameSounds.cardFlip();
+          // 🔊 Suono: carta estratta (TEMPORANEAMENTE DISABILITATO - suono da migliorare)
+          // GameSounds.cardFlip();
 
           // Aggiungi la carta all'array drawnCards PRIMA di aggiungerla allo stack
           if (!window.gameState.drawnCards) {

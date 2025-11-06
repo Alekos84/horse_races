@@ -52,7 +52,9 @@ export const GameSounds = {
 export function playSoundForCardAndMovement(cardValue, oldPosition, newPosition) {
   // Suono specifico per tipo di carta
   if (cardValue === 'Asso') {
-    GameSounds.aceSound();
+    // TEMPORANEAMENTE DISABILITATO - suono troppo lungo, da sostituire
+    // GameSounds.aceSound();
+    GameSounds.horseMove(); // Usa suono standard per ora
   } else if (cardValue === 'Re' || cardValue === 'Fante') {
     GameSounds.powerMove();
   } else {
