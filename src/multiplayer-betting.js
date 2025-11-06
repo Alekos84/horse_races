@@ -568,8 +568,8 @@ async function updatePlayersStatus(gameId, roundNumber) {
         betsByHorse[horseIndex] = { amount: 0, chips: 0 };
       }
       betsByHorse[horseIndex].amount += bet.amount;
-      // Leggi chips direttamente dal database invece di calcolarlo
-      const chipsFromDB = bet.chips || Math.round(bet.amount / 0.20); // Fallback se chips non esiste
+      // ✅ Leggi chips direttamente dal database (salvato quando puntata è stata fatta)
+      const chipsFromDB = bet.chips || 0;
       betsByHorse[horseIndex].chips += chipsFromDB;
       totalSpent += bet.amount;
       lastBet = bet.amount; // Ultima puntata singola (approssimazione)
@@ -664,7 +664,8 @@ async function loadPreviousBets(gameId) {
           };
         }
         betsByHorse[horseIndex].amount += bet.amount;
-        betsByHorse[horseIndex].chips += Math.round(bet.amount / 0.20);
+        // ✅ Leggi chips direttamente dal database (non ricalcolare!)
+        betsByHorse[horseIndex].chips += (bet.chips || 0);
       });
 
       // Converti in array

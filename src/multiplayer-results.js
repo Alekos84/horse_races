@@ -117,14 +117,26 @@ export async function calculateMultiplayerResults(gameId) {
     // Premio per questa posizione
     const positionPrize = totalPool * (percentages[index] / 100);
 
-    // Info per ogni giocatore su questo cavallo
+    // Info per ogni giocatore su questo cavallo (con calcolo vincita)
     const playerChipsOnHorse = {};
     bets.filter(bet => bet.horse_number === horseNumber).forEach(bet => {
       const username = bet.profiles?.username || 'Sconosciuto';
       if (!playerChipsOnHorse[username]) {
-        playerChipsOnHorse[username] = 0;
+        playerChipsOnHorse[username] = { chips: 0, amount: 0 };
       }
-      playerChipsOnHorse[username] += (bet.chips || 0);
+      playerChipsOnHorse[username].chips += (bet.chips || 0);
+      playerChipsOnHorse[username].amount += bet.amount;
+    });
+
+    // Calcola vincita per ogni giocatore su questo cavallo
+    Object.keys(playerChipsOnHorse).forEach(username => {
+      const playerData = playerChipsOnHorse[username];
+      if (totalBetsOnHorse > 0) {
+        const proportion = playerData.amount / totalBetsOnHorse;
+        playerData.winnings = positionPrize * proportion;
+      } else {
+        playerData.winnings = 0;
+      }
     });
 
     return {
@@ -299,9 +311,11 @@ export function displayMultiplayerResults(results) {
           <!-- Fiches per giocatore su questo cavallo -->
           <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; min-height: 60px;">
             <div style="font-size: 12px; color: #FFD700; margin-bottom: 8px; font-weight: bold;">Fiches giocatori:</div>
-            ${Object.entries(playerChipsOnHorse).map(([username, chips]) => `
-              <div style="font-size: 11px; color: white; margin: 3px 0; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 4px;">
-                <strong>${username}:</strong> ${chips} ${chips === 1 ? 'fiche' : 'fiches'}
+            ${Object.entries(playerChipsOnHorse).map(([username, data]) => `
+              <div style="font-size: 11px; color: white; margin: 5px 0; padding: 6px; background: rgba(255,255,255,0.15); border-radius: 4px; border-left: 3px solid #4CAF50;">
+                <div style="margin-bottom: 3px;"><strong>${username}</strong></div>
+                <div style="font-size: 10px; color: #ccc;">🎯 ${data.chips}/${totalChipsOnHorse} fiches (${((data.chips / totalChipsOnHorse) * 100).toFixed(1)}%)</div>
+                <div style="font-size: 11px; color: #4CAF50; font-weight: bold; margin-top: 2px;">💰 Vince: €${data.winnings.toFixed(2)}</div>
               </div>
             `).join('')}
             ${Object.keys(playerChipsOnHorse).length === 0 ? '<div style="font-size: 11px; color: #999;">Nessuna puntata</div>' : ''}

@@ -55,7 +55,7 @@ export function playSoundForCardAndMovement(cardValue, oldPosition, newPosition)
     // TEMPORANEAMENTE DISABILITATO - suono troppo lungo, da sostituire
     // GameSounds.aceSound();
     GameSounds.horseMove(); // Usa suono standard per ora
-  } else if (cardValue === 'Re' || cardValue === 'Fante') {
+  } else if (cardValue === 'Re' || cardValue === 'Fante' || cardValue === 'Donna' || cardValue === 'Cavallo') {
     GameSounds.powerMove();
   } else {
     GameSounds.horseMove();
