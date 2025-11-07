@@ -158,44 +158,44 @@ function showCreateRoomForm() {
   const lobbyContainer = document.getElementById('lobby-container');
   lobbyContainer.innerHTML = `
     <div class="create-room-form">
-      <h2>Configura Stanza Multiplayer</h2>
+      <h2>${t('lobby.createRoomForm.title')}</h2>
 
-      <label>Numero Cavalli:
+      <label>${t('lobby.createRoomForm.numHorses')}
         <select id="room-horses">
-          <option value="4" selected>4 Cavalli</option>
-          <option value="5">5 Cavalli</option>
-          <option value="6">6 Cavalli</option>
-          <option value="7">7 Cavalli</option>
-          <option value="8">8 Cavalli</option>
+          <option value="4" selected>${t('lobby.createRoomForm.horses', { count: 4 })}</option>
+          <option value="5">${t('lobby.createRoomForm.horses', { count: 5 })}</option>
+          <option value="6">${t('lobby.createRoomForm.horses', { count: 6 })}</option>
+          <option value="7">${t('lobby.createRoomForm.horses', { count: 7 })}</option>
+          <option value="8">${t('lobby.createRoomForm.horses', { count: 8 })}</option>
         </select>
       </label>
 
-      <label>Max Giocatori:
+      <label>${t('lobby.createRoomForm.maxPlayers')}
         <input type="number" id="room-max-players" min="2" max="10" value="3">
       </label>
 
-      <label>Valore Iniziale Fiches (€):
+      <label>${t('lobby.createRoomForm.initialChips')}
         <input type="number" id="room-initial-chips" step="0.01" min="0.10" value="0.20">
       </label>
 
-      <label>Importo Max per Finestra (€):
+      <label>${t('lobby.createRoomForm.maxBet')}
         <input type="number" id="room-max-bet" step="0.01" min="0.50" value="2.00">
       </label>
 
-      <label>Distribuzione Premi:
+      <label>${t('lobby.createRoomForm.prizeDistribution')}
         <select id="room-prize-distribution">
-          <option value="winner-takes-all" selected>Solo 1° posto</option>
-          <option value="top-2" disabled>1° e 2° posto (min 5 cavalli)</option>
-          <option value="top-3" disabled>1°, 2° e 3° posto (8 cavalli)</option>
+          <option value="winner-takes-all" selected>${t('lobby.createRoomForm.prizeWinnerOnly')}</option>
+          <option value="top-2" disabled>${t('lobby.createRoomForm.prizeTop2')}</option>
+          <option value="top-3" disabled>${t('lobby.createRoomForm.prizeTop3')}</option>
         </select>
       </label>
 
-      <label>Entry Fee (coins virtuali):
+      <label>${t('lobby.createRoomForm.entryFee')}
         <input type="number" id="room-entry-fee" min="0" value="0">
       </label>
 
       <label class="checkbox-label">
-        <span>Stanza privata (solo invito)</span>
+        <span>${t('lobby.createRoomForm.isPrivate')}</span>
         <label class="switch">
           <input type="checkbox" id="room-is-private">
           <span class="slider"></span>
@@ -203,8 +203,8 @@ function showCreateRoomForm() {
       </label>
 
       <div class="form-actions">
-        <button id="create-room-confirm" class="btn-primary">Crea Stanza</button>
-        <button id="create-room-cancel" class="btn-secondary">Annulla</button>
+        <button id="create-room-confirm" class="btn-primary">${t('lobby.createRoomForm.create')}</button>
+        <button id="create-room-cancel" class="btn-secondary">${t('lobby.createRoomForm.cancel')}</button>
       </div>
       <div id="create-room-message"></div>
     </div>
@@ -257,13 +257,13 @@ async function createRoomHandler() {
     if (game.is_private) {
       const inviteLink = window.location.origin + '?join=' + game.invite_code;
       messageEl.innerHTML = `
-        <p class="success">Stanza privata creata!</p>
-        <p>Condividi questo link con gli amici:</p>
+        <p class="success">${t('lobby.createRoomForm.privateCreated')}</p>
+        <p>${t('lobby.createRoomForm.shareLink')}</p>
         <input type="text" value="${inviteLink}" readonly onclick="this.select()" style="width:100%; padding:8px; margin:10px 0;">
-        <button onclick="window.joinRoom('${game.id}')" class="btn-primary">Entra nella Stanza</button>
+        <button onclick="window.joinRoom('${game.id}')" class="btn-primary">${t('lobby.createRoomForm.enterRoom')}</button>
       `;
     } else {
-      messageEl.innerHTML = '<p class="success">Stanza creata!</p>';
+      messageEl.innerHTML = `<p class="success">${t('lobby.createRoomForm.created')}</p>`;
       setTimeout(() => joinRoom(game.id), 1000);
     }
   } catch (error) {
@@ -403,8 +403,8 @@ export async function joinRoom(gameId) {
   }
 
   roomHeader.innerHTML = `
-    <h2 style="margin: 0; color: white;">🌐 Stanza Multiplayer #${gameId.slice(0, 8)}</h2>
-    <button id="leave-room-btn" class="btn-secondary">Esci dalla Stanza</button>
+    <h2 style="margin: 0; color: white;">${t('lobby.room.title', { id: gameId.slice(0, 8) })}</h2>
+    <button id="leave-room-btn" class="btn-secondary">${t('lobby.room.leave')}</button>
   `;
 
   // Crea sezione giocatori
@@ -417,7 +417,7 @@ export async function joinRoom(gameId) {
   }
 
   playersSection.innerHTML = `
-    <h3 style="color: white; margin-bottom: 15px;">👥 Giocatori in Stanza</h3>
+    <h3 style="color: white; margin-bottom: 15px;">${t('lobby.room.playersInRoom')}</h3>
     <div id="players-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;"></div>
   `;
 
@@ -815,11 +815,11 @@ async function loadRoomData(gameId) {
 
       // Mostra TUTTI i partecipanti
       if (!participants || participants.length === 0) {
-        playersList.innerHTML = '<p style="color: #ccc; text-align: center;">Nessun giocatore nella stanza</p>';
+        playersList.innerHTML = `<p style="color: #ccc; text-align: center;">${t('lobby.room.noPlayers')}</p>`;
       } else {
         playersList.innerHTML = participants.map(participant => {
           const userId = participant.user_id;
-          const username = participant.profiles?.username || 'Sconosciuto';
+          const username = participant.profiles?.username || 'Unknown';
           const playerBets = betsMap[userId];
 
           if (!playerBets || playerBets.bets.length === 0) {
@@ -828,10 +828,10 @@ async function loadRoomData(gameId) {
               <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
                 <strong style="color: #4CAF50;">👤 ${username}</strong>
                 <div style="font-size: 12px; color: #ccc; margin-top: 5px;">
-                  Nessuna puntata
+                  ${t('lobby.room.noBets')}
                 </div>
                 <div style="margin-top: 5px; font-weight: bold; color: white;">
-                  Totale speso: €0.00
+                  ${t('lobby.room.totalSpent', { amount: '0.00' })}
                 </div>
               </div>
             `;
@@ -853,7 +853,7 @@ async function loadRoomData(gameId) {
             let chipsHtml = '';
             if (Object.keys(betsByHorse).length > 0) {
               chipsHtml = '<div style="margin-top: 8px; font-size: 11px;">';
-              chipsHtml += '<div style="color: #aaa; margin-bottom: 4px;">Fiches:</div>';
+              chipsHtml += `<div style="color: #aaa; margin-bottom: 4px;">${t('lobby.room.chips')}</div>`;
               Object.entries(betsByHorse).forEach(([horseIndex, data]) => {
                 const horse = window.gameState.horses[parseInt(horseIndex)];
                 if (horse) {
@@ -868,7 +868,7 @@ async function loadRoomData(gameId) {
               <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
                 <strong style="color: #4CAF50;">👤 ${username}</strong>
                 <div style="margin-top: 5px; font-weight: bold; color: white;">
-                  Totale speso: €${playerBets.totalSpent.toFixed(2)}
+                  ${t('lobby.room.totalSpent', { amount: playerBets.totalSpent.toFixed(2) })}
                 </div>
                 ${chipsHtml}
               </div>
@@ -1001,8 +1001,8 @@ async function showWaitingRoomModal(gameId, creatorId, currentUserId) {
       width: 90%;
       text-align: center;
     ">
-      <h2 style="color: #2c5f2d; margin-bottom: 10px;">Sala d'Attesa</h2>
-      <p style="color: #666; margin-bottom: 20px;">In attesa di altri giocatori...</p>
+      <h2 style="color: #2c5f2d; margin-bottom: 10px;">${t('lobby.waitingRoom.title')}</h2>
+      <p style="color: #666; margin-bottom: 20px;">${t('lobby.waitingRoom.waiting')}</p>
       <div id="waiting-players-list" style="
         background: #f8f9fa;
         padding: 20px;
@@ -1011,9 +1011,9 @@ async function showWaitingRoomModal(gameId, creatorId, currentUserId) {
         min-height: 100px;
       "></div>
       <button id="start-race-owner" class="btn-primary" style="display: ${isCreator ? 'inline-block' : 'none'}; margin-right: 10px;">
-        Inizia Partita
+        ${t('lobby.waitingRoom.startRace')}
       </button>
-      <button id="leave-waiting-room" class="btn-secondary">Esci</button>
+      <button id="leave-waiting-room" class="btn-secondary">${t('lobby.waitingRoom.leave')}</button>
     </div>
   `;
 
@@ -1034,7 +1034,7 @@ async function showWaitingRoomModal(gameId, creatorId, currentUserId) {
         .eq('game_id', gameId);
 
       if (!participants || participants.length < 2) {
-        alert('⚠️ Servono almeno 2 giocatori per iniziare la partita!');
+        alert(t('lobby.waitingRoom.minPlayersError'));
         return;
       }
 
@@ -1113,18 +1113,18 @@ async function updateWaitingPlayersList(gameId) {
   }
 
   if (!participants || participants.length === 0) {
-    playersList.innerHTML = '<p style="color: #999;">Nessun giocatore nella stanza</p>';
+    playersList.innerHTML = `<p style="color: #999;">${t('lobby.waitingRoom.noPlayers')}</p>`;
     return;
   }
 
   // Genera HTML per ogni partecipante
   playersList.innerHTML = participants.map(p => {
-    const username = p.profiles?.username || 'Giocatore';
+    const username = p.profiles?.username || 'Player';
     const isCreator = p.user_id === game.created_by;
 
     return `
       <div style="padding: 10px; background: white; border-radius: 6px; margin-bottom: 5px; color: #333;">
-        👤 ${username} ${isCreator ? '<span style="color: #4a7c59; font-weight: bold;">(Creatore)</span>' : ''}
+        👤 ${username} ${isCreator ? `<span style="color: #4a7c59; font-weight: bold;">${t('lobby.waitingRoom.creator')}</span>` : ''}
       </div>
     `;
   }).join('');
