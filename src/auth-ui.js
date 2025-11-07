@@ -1,4 +1,4 @@
-import { signUp, signIn, signOut, getCurrentUser, onAuthStateChange } from './auth.js';
+import { signUp, signIn, signOut, getCurrentUser, onAuthStateChange, requestPasswordReset } from './auth.js';
 import { supabase } from './main.js';
 
 let authModal = null;
@@ -24,6 +24,7 @@ export function createAuthModal() {
             </div>
             <button id="login-btn">Accedi</button>
             <p class="auth-switch">Non hai un account? <a href="#" id="show-signup">Registrati</a></p>
+            <p class="auth-switch"><a href="#" id="show-forgot-password">Password dimenticata?</a></p>
             <div id="login-message" class="auth-message"></div>
           </div>
 
@@ -39,6 +40,16 @@ export function createAuthModal() {
             <button id="signup-btn">Registrati</button>
             <p class="auth-switch">Hai già un account? <a href="#" id="show-login">Accedi</a></p>
             <div id="signup-message" class="auth-message"></div>
+          </div>
+
+          <!-- Form Recupero Password -->
+          <div id="forgot-password-form" class="auth-form">
+            <h3>Recupero Password</h3>
+            <p style="color: #ccc; font-size: 14px; margin-bottom: 15px;">Inserisci la tua email e ti invieremo un link per reimpostare la password.</p>
+            <input type="email" id="forgot-email" placeholder="Email" required />
+            <button id="forgot-btn">Invia Link di Recupero</button>
+            <p class="auth-switch"><a href="#" id="back-to-login">Torna al login</a></p>
+            <div id="forgot-message" class="auth-message"></div>
           </div>
         </div>
       </div>
@@ -88,6 +99,22 @@ function attachAuthHandlers() {
   document.getElementById('show-login').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('signup-form').classList.remove('active');
+    document.getElementById('forgot-password-form').classList.remove('active');
+    document.getElementById('login-form').classList.add('active');
+    clearMessages();
+  });
+
+  document.getElementById('show-forgot-password').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('login-form').classList.remove('active');
+    document.getElementById('signup-form').classList.remove('active');
+    document.getElementById('forgot-password-form').classList.add('active');
+    clearMessages();
+  });
+
+  document.getElementById('back-to-login').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('forgot-password-form').classList.remove('active');
     document.getElementById('login-form').classList.add('active');
     clearMessages();
   });
@@ -140,6 +167,25 @@ function attachAuthHandlers() {
       showMessage(messageEl, 'Errore: ' + error.message, 'error');
     }
   });
+
+  // Recupero password
+  document.getElementById('forgot-btn').addEventListener('click', async () => {
+    const email = document.getElementById('forgot-email').value.trim();
+    const messageEl = document.getElementById('forgot-message');
+
+    if (!email) {
+      showMessage(messageEl, 'Inserisci la tua email', 'error');
+      return;
+    }
+
+    try {
+      await requestPasswordReset(email);
+      showMessage(messageEl, '✅ Email inviata! Controlla la tua casella di posta per il link di recupero.', 'success');
+      document.getElementById('forgot-email').value = '';
+    } catch (error) {
+      showMessage(messageEl, 'Errore: ' + error.message, 'error');
+    }
+  });
 }
 
 function clearMessages() {
@@ -147,6 +193,11 @@ function clearMessages() {
   document.getElementById('login-message').className = 'auth-message';
   document.getElementById('signup-message').textContent = '';
   document.getElementById('signup-message').className = 'auth-message';
+  const forgotMessage = document.getElementById('forgot-message');
+  if (forgotMessage) {
+    forgotMessage.textContent = '';
+    forgotMessage.className = 'auth-message';
+  }
 }
 
 function showMessage(element, message, type) {

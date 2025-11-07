@@ -44,3 +44,23 @@ export async function getCurrentUser() {
 export function onAuthStateChange(callback) {
   return supabase.auth.onAuthStateChange(callback);
 }
+
+// Richiedi reset password (invia email)
+export async function requestPasswordReset(email) {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password.html`
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+// Aggiorna password (dopo aver cliccato sul link nell'email)
+export async function updatePassword(newPassword) {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword
+  });
+
+  if (error) throw error;
+  return data;
+}
