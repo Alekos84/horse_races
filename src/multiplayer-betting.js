@@ -1,6 +1,7 @@
 import { closeBettingWindow, getPlayersStatus, triggerTimerForAll } from './betting-sync.js';
 import { placeBet, getGameBets } from './game-multiplayer.js';
 import { supabase } from './main.js';
+import { t } from './i18n.js';
 
 // Flag per prevenire acquisti simultanei con click rapidi
 let isPurchasing = false;
@@ -112,7 +113,7 @@ export async function openMultiplayerBetting(gameId, roundNumber, username, init
     // Mostra messaggio invece del timer
     const timerElement = document.getElementById('betting-timer-multiplayer');
     if (timerElement) {
-      timerElement.innerHTML = '<p style="color: #ffc107;">⏳ In attesa che qualcuno scommetta...</p>';
+      timerElement.innerHTML = `<p style="color: #ffc107;">${t('betting.waiting')}</p>`;
     }
   }
 
@@ -136,7 +137,7 @@ function createMultiplayerBettingInterface(username, gameId, roundNumber) {
     <div class="participant-header">
       <span>👤 ${username}</span>
       <div class="participant-summary">
-        <span id="player-summary">Cavalli scommessi: ${selectedHorses}/3</span>
+        <span id="player-summary">${t('betting.horsesSelected', { count: selectedHorses })}</span>
       </div>
     </div>
   `;
@@ -146,7 +147,7 @@ function createMultiplayerBettingInterface(username, gameId, roundNumber) {
 
   let summaryHtml = `
     <div class="participant-chips-summary">
-      <h5>🎯 Riepilogo Fiches:</h5>
+      <h5>${t('betting.summary')}</h5>
   `;
 
   window.gameState.horses.forEach((horse, horseIndex) => {
@@ -165,7 +166,7 @@ function createMultiplayerBettingInterface(username, gameId, roundNumber) {
 
   const totalSpent = getTotalSpent();
   console.log('🔍 Riepilogo - Totale speso:', totalSpent);
-  summaryHtml += `<div class="total-spent">Totale speso: €${totalSpent.toFixed(2)}</div></div>`;
+  summaryHtml += `<div class="total-spent">${t('betting.totalSpent', { amount: totalSpent.toFixed(2) })}</div></div>`;
 
   // Opzioni cavalli (card)
   let optionsHtml = '<div class="horse-options" id="player-horses">';
@@ -189,8 +190,8 @@ function createMultiplayerBettingInterface(username, gameId, roundNumber) {
           <span>${horse.name} <img src="${horse.imagePath}cavallo.png" style="width: 16px; height: auto; vertical-align: middle;"></span>
         </div>
         <div class="horse-option-info">
-          <span>Posizione: ${horse.position}/10</span>
-          <span>Prezzo: €${chipPrice.toFixed(2)}</span>
+          <span>${t('betting.position', { pos: horse.position })}</span>
+          <span>${t('betting.price', { amount: chipPrice.toFixed(2) })}</span>
         </div>
       </div>
     `;
@@ -201,10 +202,10 @@ function createMultiplayerBettingInterface(username, gameId, roundNumber) {
   // Controlli acquisto
   const controlsHtml = `
     <div class="chips-control">
-      <label>Fiches:</label>
-      <input type="number" class="chips-input" id="chips-input" min="1" max="50" placeholder="N°" oninput="updateMultiplayerAmount()">
+      <label>${t('betting.chipsLabel')}</label>
+      <input type="number" class="chips-input" id="chips-input" min="1" max="50" placeholder="${t('betting.chipsPlaceholder')}" oninput="updateMultiplayerAmount()">
       <div class="amount-display" id="amount-display">€0.00</div>
-      <button class="btn-small" id="buy-btn" onclick="buyMultiplayerChips('${gameId}', ${roundNumber})" disabled>Compra</button>
+      <button class="btn-small" id="buy-btn" onclick="buyMultiplayerChips('${gameId}', ${roundNumber})" disabled>${t('betting.buy')}</button>
     </div>
   `;
 
@@ -212,16 +213,16 @@ function createMultiplayerBettingInterface(username, gameId, roundNumber) {
   const actionsHtml = `
     <div class="betting-actions">
       <button id="close-betting-multiplayer" class="btn" disabled>
-        Chiudi Finestra Scommesse
+        ${t('betting.close')}
       </button>
-      <div id="betting-timer">Tempo rimanente: 2:00</div>
+      <div id="betting-timer">${t('betting.timeRemaining', { time: '2:00' })}</div>
     </div>
   `;
 
   // Status giocatori
   const statusHtml = `
     <div id="players-status" style="margin-top: 20px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
-      <h4 style="color: white;">Stato giocatori:</h4>
+      <h4 style="color: white;">${t('betting.playersStatus')}</h4>
       <div id="players-status-list"></div>
     </div>
   `;
@@ -262,7 +263,7 @@ window.updateMultiplayerAmount = function() {
   const buyButton = document.getElementById('buy-btn');
 
   if (playerState.selectedHorse === null) {
-    amountDisplay.textContent = 'Seleziona cavallo';
+    amountDisplay.textContent = t('betting.selectHorse');
     buyButton.disabled = true;
     return;
   }
@@ -283,10 +284,10 @@ window.updateMultiplayerAmount = function() {
 
   if (exceedsLimit) {
     amountDisplay.style.color = '#ff4444';
-    amountDisplay.textContent += ' (LIMITE!)';
+    amountDisplay.textContent += ` ${t('betting.limit')}`;
   } else if (!canPurchase) {
     amountDisplay.style.color = '#ff4444';
-    amountDisplay.textContent += ' (NON DISPONIBILE!)';
+    amountDisplay.textContent += ` ${t('betting.notAvailable')}`;
   } else {
     amountDisplay.style.color = '#fff';
   }
@@ -301,7 +302,7 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
   }
 
   if (playerState.selectedHorse === null) {
-    alert('Seleziona prima un cavallo!');
+    alert(t('betting.selectHorse'));
     return;
   }
 
@@ -309,7 +310,6 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
   const chips = parseInt(chipsInput.value) || 0;
 
   if (chips <= 0) {
-    alert('Inserisci un numero di fiches valido!');
     return;
   }
 
@@ -317,7 +317,7 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
 
   // 🚫 CONTROLLO SICUREZZA: Blocca acquisto se cavallo >= posizione 8
   if (horse.position >= 8) {
-    alert('⚠️ Non puoi scommettere su questo cavallo: è troppo avanti! (posizione >= 8)');
+    alert(t('betting.cannotBetPosition8'));
     return;
   }
 
@@ -472,7 +472,7 @@ async function closeMultiplayerBetting(gameId, roundNumber) {
 
   // Verifica che l'utente corrente abbia effettuato almeno una puntata
   if (!playerState.bets || playerState.bets.length === 0 || playerState.bets.every(b => b.amount <= 0)) {
-    alert('Devi acquistare fiches prima di chiudere');
+    alert(t('betting.mustBuy'));
     return;
   }
 
@@ -484,7 +484,7 @@ async function closeMultiplayerBetting(gameId, roundNumber) {
       .eq('game_id', gameId);
 
     if (!bets || bets.length === 0) {
-      alert('⚠️ Impossibile chiudere: almeno un giocatore deve effettuare una puntata per iniziare la partita!');
+      alert(t('betting.minOneBet'));
       return;
     }
   }
@@ -527,7 +527,7 @@ export function startBettingCountdown(gameId, roundNumber) {
 
     if (secondsLeft <= 0) {
       clearInterval(interval);
-      timerEl.textContent = 'Tempo scaduto!';
+      timerEl.textContent = t('betting.timeExpired');
     }
   }, 1000);
 
