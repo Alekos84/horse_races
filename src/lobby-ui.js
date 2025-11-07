@@ -5,6 +5,7 @@ import { startBettingRound, closeBettingWindow, subscribeToGameUpdates, getPlaye
 import { openMultiplayerBetting, updatePlayersStatus, startBettingCountdown, updateTotalPool } from './multiplayer-betting.js';
 import { calculateMultiplayerResults, displayMultiplayerResults } from './multiplayer-results.js';
 import { GameSounds, playSoundForCardAndMovement, playSoundIfVictory } from './sounds.js';
+import { t } from './i18n.js';
 
 let currentGameId = null;
 let gameSubscription = null;
@@ -57,14 +58,14 @@ export async function showLobby() {
   }
 
   lobbyContainer.innerHTML = `
-    <button onclick="backToModeSelection()" class="btn-secondary" style="margin-bottom: 20px;">← Indietro</button>
+    <button onclick="backToModeSelection()" class="btn-secondary" style="margin-bottom: 20px;">${t('lobby.back')}</button>
     <div class="lobby-header">
-      <h2>Stanze Multiplayer</h2>
-      <button id="create-room-btn" class="btn-primary">Crea Nuova Stanza</button>
-      <button id="refresh-rooms-btn" class="btn-secondary">Aggiorna</button>
+      <h2>${t('lobby.title')}</h2>
+      <button id="create-room-btn" class="btn-primary">${t('lobby.createRoom')}</button>
+      <button id="refresh-rooms-btn" class="btn-secondary">${t('lobby.refresh')}</button>
     </div>
     <div id="rooms-list" class="rooms-list">
-      <p>Caricamento stanze...</p>
+      <p>${t('lobby.loading')}</p>
     </div>
   `;
 
@@ -77,7 +78,7 @@ export async function showLobby() {
 // Carica lista stanze disponibili
 async function loadRooms() {
   const roomsList = document.getElementById('rooms-list');
-  roomsList.innerHTML = '<p>Caricamento...</p>';
+  roomsList.innerHTML = `<p>${t('lobby.loading')}</p>`;
 
   try {
     const currentUser = await getCurrentUser();
@@ -93,7 +94,7 @@ async function loadRooms() {
     if (error) throw error;
 
     if (!games || games.length === 0) {
-      roomsList.innerHTML = '<p class="no-rooms">Nessuna stanza disponibile. Creane una!</p>';
+      roomsList.innerHTML = `<p class="no-rooms">${t('lobby.noRooms')}</p>`;
       return;
     }
 
@@ -104,19 +105,19 @@ async function loadRooms() {
       return `
         <div class="room-card">
           <div class="room-info">
-            <h3>Stanza #${game.id.slice(0, 8)}</h3>
-            <p>Creata da: ${game.profiles?.username || 'Sconosciuto'}</p>
-            <p>Cavalli: ${game.num_horses} | Max giocatori: ${game.max_players}</p>
-            ${game.entry_fee > 0 ? `<p>Entry fee: ${game.entry_fee} coins</p>` : '<p>Gratuita</p>'}
-            ${isStarted ? '<p style="color: #ff6b35; font-weight: bold;">🏁 In corso</p>' : '<p style="color: #4a7c59;">⏳ In attesa</p>'}
+            <h3>${t('lobby.room.id', { id: game.id.slice(0, 8) })}</h3>
+            <p>${t('lobby.room.createdBy', { creator: game.profiles?.username || 'Unknown' })}</p>
+            <p>${t('lobby.room.horses', { count: game.num_horses })} | ${t('lobby.room.maxPlayers', { count: game.max_players })}</p>
+            ${game.entry_fee > 0 ? `<p>${t('lobby.room.entryFee', { amount: game.entry_fee })}</p>` : `<p>${t('lobby.room.free')}</p>`}
+            ${isStarted ? `<p style="color: #ff6b35; font-weight: bold;">${t('lobby.room.running')}</p>` : `<p style="color: #4a7c59;">${t('lobby.room.waiting')}</p>`}
           </div>
           <div class="room-actions">
             <button class="btn-join" onclick="window.joinRoom('${game.id}')">
-              ${isStarted ? 'Rientra' : 'Entra'}
+              ${isStarted ? t('lobby.room.rejoin') : t('lobby.room.join')}
             </button>
             ${isOwner && !isStarted ? `
               <button class="btn-delete" onclick="window.deleteRoom('${game.id}')">
-                Elimina
+                ${t('lobby.room.delete')}
               </button>
             ` : ''}
           </div>
@@ -125,13 +126,13 @@ async function loadRooms() {
     }).join('');
 
   } catch (error) {
-    roomsList.innerHTML = `<p class="error">Errore caricamento stanze: ${error.message}</p>`;
+    roomsList.innerHTML = `<p class="error">${t('common.error')}: ${error.message}</p>`;
   }
 }
 
 // Esponi deleteRoom globalmente con logging
 window.deleteRoom = async function(gameId) {
-  if (!confirm('Sei sicuro di voler eliminare questa stanza?')) return;
+  if (!confirm(t('lobby.room.deleteConfirm'))) return;
 
   console.log('🗑️ Tentativo eliminazione stanza:', gameId);
 
