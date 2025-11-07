@@ -1,5 +1,6 @@
 import { supabase } from './main.js';
 import { getGameBets } from './game-multiplayer.js';
+import { t } from './i18n.js';
 
 // Percentuali di distribuzione del montepremi
 const PRIZE_DISTRIBUTIONS = {
@@ -280,10 +281,10 @@ export function displayMultiplayerResults(results) {
   resultsDiv.style.display = 'block';
 
   // 1. PODIO CON CAVALLI VINCENTI DISTANZIATI
-  let winnerHtml = '<h4 style="text-align: center; color: #FFD700; margin-bottom: 20px;">🏁 PODIO 🏁</h4>';
+  let winnerHtml = `<h4 style="text-align: center; color: #FFD700; margin-bottom: 20px;">${t('results.title')}</h4>`;
 
   if (results.winners.length === 0) {
-    winnerHtml += '<p style="text-align: center; color: #FFA500;">Nessun cavallo ha completato la corsa</p>';
+    winnerHtml += `<p style="text-align: center; color: #FFA500;">${t('results.noWinners')}</p>`;
   } else {
     // Container per podio con cavalli distanziati
     winnerHtml += '<div style="display: flex; justify-content: space-around; align-items: flex-start; background: rgba(255,215,0,0.15); padding: 20px; border-radius: 12px; border: 2px solid #FFD700; margin-bottom: 20px;">';
@@ -303,22 +304,22 @@ export function displayMultiplayerResults(results) {
 
           <!-- Quota montepremi -->
           <div style="background: rgba(76,175,80,0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
-            <div style="font-size: 14px; color: #FFD700; font-weight: bold;">${percentage}% del montepremi</div>
+            <div style="font-size: 14px; color: #FFD700; font-weight: bold;">${t('results.prizePercentage', { percent: percentage })}</div>
             <div style="font-size: 20px; color: #4CAF50; font-weight: bold;">€${positionPrize.toFixed(2)}</div>
-            <div style="font-size: 11px; color: #ccc; margin-top: 5px;">Totale fiches: ${totalChipsOnHorse}</div>
+            <div style="font-size: 11px; color: #ccc; margin-top: 5px;">${t('results.totalChips', { count: totalChipsOnHorse })}</div>
           </div>
 
           <!-- Fiches per giocatore su questo cavallo -->
           <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; min-height: 60px;">
-            <div style="font-size: 12px; color: #FFD700; margin-bottom: 8px; font-weight: bold;">Fiches giocatori:</div>
+            <div style="font-size: 12px; color: #FFD700; margin-bottom: 8px; font-weight: bold;">${t('results.playerChips')}</div>
             ${Object.entries(playerChipsOnHorse).map(([username, data]) => `
               <div style="font-size: 11px; color: white; margin: 5px 0; padding: 6px; background: rgba(255,255,255,0.15); border-radius: 4px; border-left: 3px solid #4CAF50;">
                 <div style="margin-bottom: 3px;"><strong>${username}</strong></div>
-                <div style="font-size: 10px; color: #ccc;">🎯 ${data.chips}/${totalChipsOnHorse} fiches (${((data.chips / totalChipsOnHorse) * 100).toFixed(1)}%)</div>
-                <div style="font-size: 11px; color: #4CAF50; font-weight: bold; margin-top: 2px;">💰 Vince: €${data.winnings.toFixed(2)}</div>
+                <div style="font-size: 10px; color: #ccc;">${t('results.chipsRatio', { owned: data.chips, total: totalChipsOnHorse, percent: ((data.chips / totalChipsOnHorse) * 100).toFixed(1) })}</div>
+                <div style="font-size: 11px; color: #4CAF50; font-weight: bold; margin-top: 2px;">${t('results.wins', { amount: data.winnings.toFixed(2) })}</div>
               </div>
             `).join('')}
-            ${Object.keys(playerChipsOnHorse).length === 0 ? '<div style="font-size: 11px; color: #999;">Nessuna puntata</div>' : ''}
+            ${Object.keys(playerChipsOnHorse).length === 0 ? `<div style="font-size: 11px; color: #999;">${t('results.noBets')}</div>` : ''}
           </div>
         </div>
       `;
@@ -331,15 +332,15 @@ export function displayMultiplayerResults(results) {
 
   // 2. MONTEPREMI TOTALE
   let payoutHtml = `<div style="background: rgba(76,175,80,0.2); padding: 12px; margin: 15px 0; border-radius: 8px; text-align: center; border: 2px solid #4CAF50;">
-    <strong style="font-size: 18px; color: #4CAF50;">💰 Montepremi Totale: €${results.totalPool.toFixed(2)}</strong>
+    <strong style="font-size: 18px; color: #4CAF50;">${t('results.totalPool', { amount: results.totalPool.toFixed(2) })}</strong>
   </div>`;
 
   // 3. CLASSIFICA GIOCATORI PER PROFITTO
-  payoutHtml += '<h4 style="text-align: center; margin-top: 25px; margin-bottom: 15px;">📊 Classifica Finale</h4>';
+  payoutHtml += `<h4 style="text-align: center; margin-top: 25px; margin-bottom: 15px;">${t('results.finalRanking')}</h4>`;
 
   if (results.playerResults.length === 0) {
     console.log('⚠️ Nessun giocatore nei risultati!');
-    payoutHtml += '<p style="text-align: center; color: #FFA500;">⚠️ Nessuna puntata trovata</p>';
+    payoutHtml += `<p style="text-align: center; color: #FFA500;">${t('results.noBets')}</p>`;
   } else {
     results.playerResults.forEach((player, index) => {
       const isProfit = player.profit > 0;
@@ -355,10 +356,10 @@ export function displayMultiplayerResults(results) {
               ${isProfit ? ' 🏆' : ' 💸'}
             </div>
             <div style="text-align: right;">
-              <div style="font-size: 13px; color: #ccc;">Speso: €${player.totalSpent.toFixed(2)}</div>
-              <div style="font-size: 13px; color: #ccc;">Vinto: €${player.totalWon.toFixed(2)}</div>
+              <div style="font-size: 13px; color: #ccc;">${t('results.spent', { amount: player.totalSpent.toFixed(2) })}</div>
+              <div style="font-size: 13px; color: #ccc;">${t('results.won', { amount: player.totalWon.toFixed(2) })}</div>
               <div style="font-weight: bold; font-size: 18px; color: ${profitColor}; margin-top: 5px;">
-                ${isProfit ? '▲' : '▼'} €${player.profit >= 0 ? '+' : ''}${player.profit.toFixed(2)}
+                ${t('results.profit', { prefix: isProfit ? '▲ +' : '▼ ', amount: Math.abs(player.profit).toFixed(2) })}
               </div>
             </div>
           </div>
