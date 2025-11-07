@@ -1,0 +1,197 @@
+{
+  "auth": {
+    "title": "Corse di Cavalli",
+    "subtitle": "Accedi o registrati per giocare",
+    "login": {
+      "title": "Accedi",
+      "email": "Email",
+      "password": "Password",
+      "button": "Accedi",
+      "noAccount": "Non hai un account?",
+      "signupLink": "Registrati",
+      "forgotPassword": "Password dimenticata?",
+      "success": "Login effettuato!",
+      "error": "Errore: {message}",
+      "fillAll": "Compila tutti i campi"
+    },
+    "signup": {
+      "title": "Registrati",
+      "username": "Username (3-30 caratteri)",
+      "email": "Email",
+      "password": "Password (min 6 caratteri)",
+      "button": "Registrati",
+      "hasAccount": "Hai già un account?",
+      "loginLink": "Accedi",
+      "success": "Registrazione completata! Controlla la tua email per confermare.",
+      "error": "Errore: {message}",
+      "fillAll": "Compila tutti i campi",
+      "usernameLength": "Username deve essere tra 3 e 30 caratteri",
+      "passwordLength": "Password deve essere almeno 6 caratteri"
+    },
+    "forgotPassword": {
+      "title": "Recupero Password",
+      "description": "Inserisci la tua email e ti invieremo un link per reimpostare la password.",
+      "email": "Email",
+      "button": "Invia Link di Recupero",
+      "backToLogin": "Torna al login",
+      "success": "✅ Email inviata! Controlla la tua casella di posta per il link di recupero.",
+      "error": "Errore: {message}",
+      "fillEmail": "Inserisci la tua email"
+    },
+    "resetPassword": {
+      "title": "Reimposta Password",
+      "description": "Inserisci la tua nuova password",
+      "newPassword": "Nuova Password",
+      "newPasswordPlaceholder": "Minimo 6 caratteri",
+      "confirmPassword": "Conferma Password",
+      "confirmPasswordPlaceholder": "Ripeti la password",
+      "button": "Reimposta Password",
+      "backToHome": "Torna alla home",
+      "success": "✅ Password reimpostata con successo! Reindirizzamento...",
+      "error": "Errore: {message}",
+      "passwordLength": "La password deve essere di almeno 6 caratteri",
+      "passwordMismatch": "Le password non corrispondono",
+      "resetting": "Reimpostazione..."
+    },
+    "logout": {
+      "confirm": "Sei sicuro di voler uscire?"
+    }
+  },
+  "gameMode": {
+    "title": "Scegli Modalità di Gioco",
+    "local": {
+      "title": "🎮 Gioco Locale",
+      "description": "Gioca da solo sul tuo dispositivo"
+    },
+    "multiplayer": {
+      "title": "🌐 Multiplayer Online",
+      "description": "Sfida altri giocatori online"
+    }
+  },
+  "lobby": {
+    "title": "Stanze Multiplayer",
+    "createRoom": "Crea Nuova Stanza",
+    "refresh": "Aggiorna",
+    "back": "Indietro",
+    "noRooms": "Nessuna stanza disponibile. Creane una!",
+    "loading": "Caricamento stanze...",
+    "room": {
+      "id": "Stanza #{id}",
+      "createdBy": "Creata da: {creator}",
+      "horses": "Cavalli: {count}",
+      "maxPlayers": "Max giocatori: {count}",
+      "entryFee": "Entry fee: {amount} coins",
+      "free": "Gratuita",
+      "running": "🏁 In corso",
+      "waiting": "⏳ In attesa",
+      "join": "Entra",
+      "rejoin": "Rientra",
+      "delete": "Elimina",
+      "deleteConfirm": "Sei sicuro di voler eliminare questa stanza?"
+    },
+    "createRoomForm": {
+      "title": "Configura Stanza Multiplayer",
+      "numHorses": "Numero Cavalli:",
+      "horses": "{count} Cavalli",
+      "maxPlayers": "Max Giocatori:",
+      "initialChips": "Valore Iniziale Fiches (€):",
+      "maxBet": "Importo Max per Finestra (€):",
+      "prizeDistribution": "Distribuzione Premi:",
+      "prizeWinnerOnly": "Solo 1° posto",
+      "prizeTop2": "1° e 2° posto (min 5 cavalli)",
+      "prizeTop3": "1°, 2° e 3° posto (8 cavalli)",
+      "entryFee": "Entry Fee (coins virtuali):",
+      "isPrivate": "Stanza privata (solo invito)",
+      "create": "Crea Stanza",
+      "cancel": "Annulla",
+      "privateCreated": "Stanza privata creata!",
+      "shareLink": "Condividi questo link con gli amici:",
+      "enterRoom": "Entra nella Stanza",
+      "created": "Stanza creata!"
+    },
+    "waitingRoom": {
+      "title": "Sala d'Attesa",
+      "waiting": "In attesa di altri giocatori...",
+      "noPlayers": "Nessun giocatore nella stanza",
+      "startRace": "Inizia Partita",
+      "leave": "Esci",
+      "minPlayersError": "⚠️ Servono almeno 2 giocatori per iniziare la partita!",
+      "creator": "(Creatore)"
+    },
+    "room": {
+      "title": "🌐 Stanza Multiplayer #{id}",
+      "leave": "Esci dalla Stanza",
+      "playersInRoom": "👥 Giocatori in Stanza",
+      "noPlayers": "Nessun giocatore nella stanza",
+      "noBets": "Nessuna puntata",
+      "totalSpent": "Totale speso: €{amount}",
+      "chips": "Fiches:"
+    }
+  },
+  "betting": {
+    "title": "Finestra Scommesse",
+    "window": "Finestra #{number}",
+    "timeRemaining": "Tempo rimanente: {time}",
+    "timeExpired": "Tempo scaduto!",
+    "waiting": "⏳ In attesa che qualcuno scommetta...",
+    "horsesSelected": "Cavalli scommessi: {count}/3",
+    "summary": "🎯 Riepilogo Fiches:",
+    "totalSpent": "Totale speso: €{amount}",
+    "position": "Posizione: {pos}/10",
+    "price": "Prezzo: €{amount}",
+    "chipsLabel": "Fiches:",
+    "chipsPlaceholder": "N°",
+    "buy": "Compra",
+    "close": "Chiudi Finestra Scommesse",
+    "selectHorse": "Seleziona cavallo",
+    "limit": "(LIMITE!)",
+    "notAvailable": "(NON DISPONIBILE!)",
+    "mustBuy": "Devi acquistare fiches prima di chiudere",
+    "minOneBet": "⚠️ Impossibile chiudere: almeno un giocatore deve effettuare una puntata per iniziare la partita!",
+    "cannotBetPosition8": "⚠️ Non puoi scommettere su questo cavallo: è troppo avanti! (posizione >= 8)",
+    "playersStatus": "Stato giocatori:",
+    "ready": "✅ Pronto",
+    "betting": "⏳ In scommessa",
+    "lastBet": "Ultima puntata: €{amount}",
+    "total": "Totale: €{amount}",
+    "noBets": "Nessuna puntata"
+  },
+  "results": {
+    "title": "🏁 PODIO 🏁",
+    "noWinners": "Nessun cavallo ha completato la corsa",
+    "position": "{pos}° {name}",
+    "prizePercentage": "{percent}% del montepremi",
+    "totalChips": "Totale fiches: {count}",
+    "playerChips": "Fiches giocatori:",
+    "chipsRatio": "🎯 {owned}/{total} fiches ({percent}%)",
+    "wins": "💰 Vince: €{amount}",
+    "totalPool": "💰 Montepremi Totale: €{amount}",
+    "finalRanking": "📊 Classifica Finale",
+    "noBets": "⚠️ Nessuna puntata trovata",
+    "spent": "Speso: €{amount}",
+    "won": "Vinto: €{amount}",
+    "profit": "Profitto: {prefix}€{amount}",
+    "newGame": "Nuova Partita",
+    "exit": "Esci"
+  },
+  "game": {
+    "cardsDrawn": "Carte pescate: {count}",
+    "currentWindow": "Finestra: {number}",
+    "totalPool": "Montepremi: €{amount}"
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo",
+    "confirm": "Conferma",
+    "cancel": "Annulla",
+    "yes": "Sì",
+    "no": "No",
+    "ok": "OK",
+    "close": "Chiudi",
+    "save": "Salva",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "back": "Indietro"
+  }
+}

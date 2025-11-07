@@ -1,0 +1,197 @@
+{
+  "auth": {
+    "title": "Horse Racing",
+    "subtitle": "Sign in or register to play",
+    "login": {
+      "title": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "button": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign Up",
+      "forgotPassword": "Forgot password?",
+      "success": "Logged in successfully!",
+      "error": "Error: {message}",
+      "fillAll": "Fill in all fields"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "username": "Username (3-30 characters)",
+      "email": "Email",
+      "password": "Password (min 6 characters)",
+      "button": "Sign Up",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign In",
+      "success": "Registration complete! Check your email to confirm.",
+      "error": "Error: {message}",
+      "fillAll": "Fill in all fields",
+      "usernameLength": "Username must be between 3 and 30 characters",
+      "passwordLength": "Password must be at least 6 characters"
+    },
+    "forgotPassword": {
+      "title": "Password Recovery",
+      "description": "Enter your email and we'll send you a link to reset your password.",
+      "email": "Email",
+      "button": "Send Recovery Link",
+      "backToLogin": "Back to login",
+      "success": "✅ Email sent! Check your inbox for the recovery link.",
+      "error": "Error: {message}",
+      "fillEmail": "Enter your email"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter your new password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Minimum 6 characters",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "button": "Reset Password",
+      "backToHome": "Back to home",
+      "success": "✅ Password reset successfully! Redirecting...",
+      "error": "Error: {message}",
+      "passwordLength": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords don't match",
+      "resetting": "Resetting..."
+    },
+    "logout": {
+      "confirm": "Are you sure you want to log out?"
+    }
+  },
+  "gameMode": {
+    "title": "Choose Game Mode",
+    "local": {
+      "title": "🎮 Local Game",
+      "description": "Play solo on your device"
+    },
+    "multiplayer": {
+      "title": "🌐 Online Multiplayer",
+      "description": "Challenge other players online"
+    }
+  },
+  "lobby": {
+    "title": "Multiplayer Rooms",
+    "createRoom": "Create New Room",
+    "refresh": "Refresh",
+    "back": "Back",
+    "noRooms": "No rooms available. Create one!",
+    "loading": "Loading rooms...",
+    "room": {
+      "id": "Room #{id}",
+      "createdBy": "Created by: {creator}",
+      "horses": "Horses: {count}",
+      "maxPlayers": "Max players: {count}",
+      "entryFee": "Entry fee: {amount} coins",
+      "free": "Free",
+      "running": "🏁 Running",
+      "waiting": "⏳ Waiting",
+      "join": "Join",
+      "rejoin": "Rejoin",
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this room?"
+    },
+    "createRoomForm": {
+      "title": "Configure Multiplayer Room",
+      "numHorses": "Number of Horses:",
+      "horses": "{count} Horses",
+      "maxPlayers": "Max Players:",
+      "initialChips": "Initial Chip Value (€):",
+      "maxBet": "Max Amount per Window (€):",
+      "prizeDistribution": "Prize Distribution:",
+      "prizeWinnerOnly": "1st place only",
+      "prizeTop2": "1st and 2nd place (min 5 horses)",
+      "prizeTop3": "1st, 2nd and 3rd place (8 horses)",
+      "entryFee": "Entry Fee (virtual coins):",
+      "isPrivate": "Private room (invite only)",
+      "create": "Create Room",
+      "cancel": "Cancel",
+      "privateCreated": "Private room created!",
+      "shareLink": "Share this link with friends:",
+      "enterRoom": "Enter Room",
+      "created": "Room created!"
+    },
+    "waitingRoom": {
+      "title": "Waiting Room",
+      "waiting": "Waiting for other players...",
+      "noPlayers": "No players in room",
+      "startRace": "Start Race",
+      "leave": "Leave",
+      "minPlayersError": "⚠️ At least 2 players needed to start the race!",
+      "creator": "(Creator)"
+    },
+    "room": {
+      "title": "🌐 Multiplayer Room #{id}",
+      "leave": "Leave Room",
+      "playersInRoom": "👥 Players in Room",
+      "noPlayers": "No players in room",
+      "noBets": "No bets",
+      "totalSpent": "Total spent: €{amount}",
+      "chips": "Chips:"
+    }
+  },
+  "betting": {
+    "title": "Betting Window",
+    "window": "Window #{number}",
+    "timeRemaining": "Time remaining: {time}",
+    "timeExpired": "Time expired!",
+    "waiting": "⏳ Waiting for someone to bet...",
+    "horsesSelected": "Horses bet on: {count}/3",
+    "summary": "🎯 Chips Summary:",
+    "totalSpent": "Total spent: €{amount}",
+    "position": "Position: {pos}/10",
+    "price": "Price: €{amount}",
+    "chipsLabel": "Chips:",
+    "chipsPlaceholder": "Qty",
+    "buy": "Buy",
+    "close": "Close Betting Window",
+    "selectHorse": "Select horse",
+    "limit": "(LIMIT!)",
+    "notAvailable": "(NOT AVAILABLE!)",
+    "mustBuy": "You must buy chips before closing",
+    "minOneBet": "⚠️ Cannot close: at least one player must place a bet to start the game!",
+    "cannotBetPosition8": "⚠️ Cannot bet on this horse: it's too far ahead! (position >= 8)",
+    "playersStatus": "Players status:",
+    "ready": "✅ Ready",
+    "betting": "⏳ Betting",
+    "lastBet": "Last bet: €{amount}",
+    "total": "Total: €{amount}",
+    "noBets": "No bets"
+  },
+  "results": {
+    "title": "🏁 PODIUM 🏁",
+    "noWinners": "No horse completed the race",
+    "position": "{pos}° {name}",
+    "prizePercentage": "{percent}% of prize pool",
+    "totalChips": "Total chips: {count}",
+    "playerChips": "Player chips:",
+    "chipsRatio": "🎯 {owned}/{total} chips ({percent}%)",
+    "wins": "💰 Wins: €{amount}",
+    "totalPool": "💰 Total Prize Pool: €{amount}",
+    "finalRanking": "📊 Final Rankings",
+    "noBets": "⚠️ No bets found",
+    "spent": "Spent: €{amount}",
+    "won": "Won: €{amount}",
+    "profit": "Profit: {prefix}€{amount}",
+    "newGame": "New Game",
+    "exit": "Exit"
+  },
+  "game": {
+    "cardsDrawn": "Cards drawn: {count}",
+    "currentWindow": "Window: {number}",
+    "totalPool": "Prize pool: €{amount}"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back"
+  }
+}

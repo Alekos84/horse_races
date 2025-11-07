@@ -1,5 +1,6 @@
 import { signUp, signIn, signOut, getCurrentUser, onAuthStateChange, requestPasswordReset } from './auth.js';
 import { supabase } from './main.js';
+import { t, getCurrentLanguage, toggleLanguage, getLanguageFlag, onLanguageChange } from './i18n.js';
 
 let authModal = null;
 
@@ -7,57 +8,69 @@ let authModal = null;
 export function createAuthModal() {
   authModal = document.createElement('div');
   authModal.id = 'auth-modal';
+  updateAuthModalContent();
+  document.body.appendChild(authModal);
+  attachAuthHandlers();
+
+  // Listener per cambio lingua - ricarica il contenuto
+  onLanguageChange(() => {
+    updateAuthModalContent();
+    attachAuthHandlers();
+  });
+}
+
+// Aggiorna il contenuto del modal con le traduzioni
+function updateAuthModalContent() {
+  if (!authModal) return;
+
   authModal.innerHTML = `
     <div class="auth-modal-overlay">
       <div class="auth-modal-content">
-        <h2>Corse di Cavalli</h2>
-        <p class="auth-subtitle">Accedi o registrati per giocare</p>
+        <h2>${t('auth.title')}</h2>
+        <p class="auth-subtitle">${t('auth.subtitle')}</p>
 
         <div id="auth-forms">
           <!-- Form Login -->
           <div id="login-form" class="auth-form active">
-            <h3>Accedi</h3>
-            <input type="email" id="login-email" placeholder="Email" required />
+            <h3>${t('auth.login.title')}</h3>
+            <input type="email" id="login-email" placeholder="${t('auth.login.email')}" required />
             <div style="position: relative; width: 100%; margin-bottom: 15px;">
-              <input type="password" id="login-password" placeholder="Password" required style="width: 100%; padding-right: 45px; margin-bottom: 0;" />
+              <input type="password" id="login-password" placeholder="${t('auth.login.password')}" required style="width: 100%; padding-right: 45px; margin-bottom: 0;" />
               <button type="button" id="toggle-login-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; font-size: 18px; padding: 5px; z-index: 10; width: auto; height: auto;">👁️</button>
             </div>
-            <button id="login-btn">Accedi</button>
-            <p class="auth-switch">Non hai un account? <a href="#" id="show-signup">Registrati</a></p>
-            <p class="auth-switch"><a href="#" id="show-forgot-password">Password dimenticata?</a></p>
+            <button id="login-btn">${t('auth.login.button')}</button>
+            <p class="auth-switch">${t('auth.login.noAccount')} <a href="#" id="show-signup">${t('auth.login.signupLink')}</a></p>
+            <p class="auth-switch"><a href="#" id="show-forgot-password">${t('auth.login.forgotPassword')}</a></p>
             <div id="login-message" class="auth-message"></div>
           </div>
 
           <!-- Form Registrazione -->
           <div id="signup-form" class="auth-form">
-            <h3>Registrati</h3>
-            <input type="text" id="signup-username" placeholder="Username (3-30 caratteri)" required />
-            <input type="email" id="signup-email" placeholder="Email" required />
+            <h3>${t('auth.signup.title')}</h3>
+            <input type="text" id="signup-username" placeholder="${t('auth.signup.username')}" required />
+            <input type="email" id="signup-email" placeholder="${t('auth.signup.email')}" required />
             <div style="position: relative; width: 100%; margin-bottom: 15px;">
-              <input type="password" id="signup-password" placeholder="Password (min 6 caratteri)" required style="width: 100%; padding-right: 45px; margin-bottom: 0;" />
+              <input type="password" id="signup-password" placeholder="${t('auth.signup.password')}" required style="width: 100%; padding-right: 45px; margin-bottom: 0;" />
               <button type="button" id="toggle-signup-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; font-size: 18px; padding: 5px; z-index: 10; width: auto; height: auto;">👁️</button>
             </div>
-            <button id="signup-btn">Registrati</button>
-            <p class="auth-switch">Hai già un account? <a href="#" id="show-login">Accedi</a></p>
+            <button id="signup-btn">${t('auth.signup.button')}</button>
+            <p class="auth-switch">${t('auth.signup.hasAccount')} <a href="#" id="show-login">${t('auth.signup.loginLink')}</a></p>
             <div id="signup-message" class="auth-message"></div>
           </div>
 
           <!-- Form Recupero Password -->
           <div id="forgot-password-form" class="auth-form">
-            <h3>Recupero Password</h3>
-            <p style="color: #ccc; font-size: 14px; margin-bottom: 15px;">Inserisci la tua email e ti invieremo un link per reimpostare la password.</p>
-            <input type="email" id="forgot-email" placeholder="Email" required />
-            <button id="forgot-btn">Invia Link di Recupero</button>
-            <p class="auth-switch"><a href="#" id="back-to-login">Torna al login</a></p>
+            <h3>${t('auth.forgotPassword.title')}</h3>
+            <p style="color: #ccc; font-size: 14px; margin-bottom: 15px;">${t('auth.forgotPassword.description')}</p>
+            <input type="email" id="forgot-email" placeholder="${t('auth.forgotPassword.email')}" required />
+            <button id="forgot-btn">${t('auth.forgotPassword.button')}</button>
+            <p class="auth-switch"><a href="#" id="back-to-login">${t('auth.forgotPassword.backToLogin')}</a></p>
             <div id="forgot-message" class="auth-message"></div>
           </div>
         </div>
       </div>
     </div>
   `;
-
-  document.body.appendChild(authModal);
-  attachAuthHandlers();
 }
 
 // Gestori eventi
@@ -126,15 +139,15 @@ function attachAuthHandlers() {
     const messageEl = document.getElementById('login-message');
 
     if (!email || !password) {
-      showMessage(messageEl, 'Compila tutti i campi', 'error');
+      showMessage(messageEl, t('auth.login.fillAll'), 'error');
       return;
     }
 
     try {
       await signIn(email, password);
-      showMessage(messageEl, 'Login effettuato!', 'success');
+      showMessage(messageEl, t('auth.login.success'), 'success');
     } catch (error) {
-      showMessage(messageEl, 'Errore: ' + error.message, 'error');
+      showMessage(messageEl, t('auth.login.error', { message: error.message }), 'error');
     }
   });
 
@@ -146,25 +159,25 @@ function attachAuthHandlers() {
     const messageEl = document.getElementById('signup-message');
 
     if (!username || !email || !password) {
-      showMessage(messageEl, 'Compila tutti i campi', 'error');
+      showMessage(messageEl, t('auth.signup.fillAll'), 'error');
       return;
     }
 
     if (username.length < 3 || username.length > 30) {
-      showMessage(messageEl, 'Username deve essere tra 3 e 30 caratteri', 'error');
+      showMessage(messageEl, t('auth.signup.usernameLength'), 'error');
       return;
     }
 
     if (password.length < 6) {
-      showMessage(messageEl, 'Password deve essere almeno 6 caratteri', 'error');
+      showMessage(messageEl, t('auth.signup.passwordLength'), 'error');
       return;
     }
 
     try {
       await signUp(email, password, username);
-      showMessage(messageEl, 'Registrazione completata! Controlla la tua email per confermare.', 'success');
+      showMessage(messageEl, t('auth.signup.success'), 'success');
     } catch (error) {
-      showMessage(messageEl, 'Errore: ' + error.message, 'error');
+      showMessage(messageEl, t('auth.signup.error', { message: error.message }), 'error');
     }
   });
 
@@ -174,16 +187,16 @@ function attachAuthHandlers() {
     const messageEl = document.getElementById('forgot-message');
 
     if (!email) {
-      showMessage(messageEl, 'Inserisci la tua email', 'error');
+      showMessage(messageEl, t('auth.forgotPassword.fillEmail'), 'error');
       return;
     }
 
     try {
       await requestPasswordReset(email);
-      showMessage(messageEl, '✅ Email inviata! Controlla la tua casella di posta per il link di recupero.', 'success');
+      showMessage(messageEl, t('auth.forgotPassword.success'), 'success');
       document.getElementById('forgot-email').value = '';
     } catch (error) {
-      showMessage(messageEl, 'Errore: ' + error.message, 'error');
+      showMessage(messageEl, t('auth.forgotPassword.error', { message: error.message }), 'error');
     }
   });
 }
@@ -233,6 +246,13 @@ function showUserInfo(email) {
   }
 }
 
+function updateLanguageButton() {
+  const languageToggle = document.getElementById('languageToggle');
+  if (languageToggle) {
+    languageToggle.textContent = `${getLanguageFlag()} ${getCurrentLanguage().toUpperCase()}`;
+  }
+}
+
 function hideUserInfo() {
   const userInfo = document.getElementById('userInfo');
   if (userInfo) {
@@ -243,12 +263,24 @@ function hideUserInfo() {
 export async function initAuth() {
   createAuthModal();
 
+  // Gestione cambio lingua
+  const languageToggle = document.getElementById('languageToggle');
+  if (languageToggle) {
+    // Imposta il testo iniziale
+    updateLanguageButton();
+
+    languageToggle.addEventListener('click', () => {
+      toggleLanguage();
+      updateLanguageButton();
+    });
+  }
+
   // Gestione logout
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       console.log('🔘 Logout button clicked');
-      if (confirm('Sei sicuro di voler uscire?')) {
+      if (confirm(t('auth.logout.confirm'))) {
         console.log('🔘 User confirmed logout');
         try {
           console.log('🔘 Calling signOut...');
