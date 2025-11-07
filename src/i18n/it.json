@@ -58,15 +58,49 @@
     }
   },
   "gameMode": {
-    "title": "Scegli Modalità di Gioco",
+    "title": "Scegli la modalità di gioco",
     "local": {
-      "title": "🎮 Gioco Locale",
-      "description": "Gioca da solo sul tuo dispositivo"
+      "title": "Partita Locale",
+      "description": "Gestisci tutti i concorrenti da questo dispositivo. Ideale per giocare fisicamente con amici."
     },
     "multiplayer": {
-      "title": "🌐 Multiplayer Online",
-      "description": "Sfida altri giocatori online"
+      "title": "Multiplayer Online",
+      "description": "Invita altri giocatori online. Ogni giocatore usa il proprio dispositivo."
     }
+  },
+  "config": {
+    "back": "← Indietro",
+    "numHorses": "Numero Cavalli",
+    "horses": "{count} Cavalli",
+    "numParticipants": "Numero Concorrenti",
+    "initialChipValue": "Valore Iniziale Fiches (€)",
+    "maxAmountPerWindow": "Importo Max per Finestra (€)",
+    "prizeDistribution": "Distribuzione Premi",
+    "prizeWinnerOnly": "Solo 1° posto",
+    "prizeTop2": "1° e 2° posto (min 5 cavalli)",
+    "prizeTop3": "1°, 2° e 3° posto (8 cavalli)",
+    "configureParticipants": "Configura Concorrenti",
+    "participantsTitle": "👥 Configura Concorrenti",
+    "startGame": "Inizia Partita"
+  },
+  "racetrack": {
+    "title": "🏁 Pista di Corsa",
+    "cards": "Carte:",
+    "window": "Finestra:",
+    "prizePool": "Montepremi:",
+    "currentCard": "Carta Corrente:",
+    "drawnCards": "Carte Estratte:",
+    "drawCard": "Pesca Carta"
+  },
+  "localBetting": {
+    "title": "💰 Acquisto Fiches - Finestra {window}",
+    "maxAmount": "Importo massimo per finestra: €{amount} - Limite 3 cavalli per concorrente",
+    "close": "Chiudi Finestra Scommesse"
+  },
+  "localResults": {
+    "title": "🏆 Risultati Gara",
+    "newGame": "Nuova Partita",
+    "backToHome": "Torna alla Home"
   },
   "lobby": {
     "title": "Stanze Multiplayer",

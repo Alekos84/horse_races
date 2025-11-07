@@ -106,3 +106,47 @@ export function getLanguageFlag() {
 export function getLanguageName() {
   return currentLanguage === 'it' ? 'Italiano' : 'English';
 }
+
+/**
+ * Update all elements with data-i18n attribute
+ */
+export function updatePageTranslations() {
+  const elements = document.querySelectorAll('[data-i18n]');
+  elements.forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    const params = element.getAttribute('data-i18n-params');
+    let translatedText;
+
+    if (params) {
+      try {
+        const paramsObj = JSON.parse(params);
+        translatedText = t(key, paramsObj);
+      } catch (e) {
+        translatedText = t(key);
+      }
+    } else {
+      translatedText = t(key);
+    }
+
+    // Update text content or placeholder based on element type
+    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+      if (element.getAttribute('data-i18n-attr') === 'placeholder') {
+        element.placeholder = translatedText;
+      } else {
+        element.value = translatedText;
+      }
+    } else if (element.tagName === 'OPTION') {
+      element.textContent = translatedText;
+    } else {
+      element.textContent = translatedText;
+    }
+  });
+}
+
+/**
+ * Initialize translations on page load
+ */
+export function initI18n() {
+  updatePageTranslations();
+  onLanguageChange(updatePageTranslations);
+}

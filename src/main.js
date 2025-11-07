@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { initAuth } from './auth-ui.js';
 import { showLobby, joinRoom } from './lobby-ui.js';
+import { initI18n } from './i18n.js';
 import './style.css';
 
 // Legge le variabili dal file .env (dev) / da Netlify (prod)
@@ -27,6 +28,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   } else {
     console.log('✅ Supabase OK. Sessione utente:', data?.session ? 'presente' : 'assente');
   }
+
+  // Inizializza sistema traduzioni
+  initI18n();
 
   // Inizializza autenticazione
   initAuth();

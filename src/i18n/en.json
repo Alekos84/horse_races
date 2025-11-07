@@ -58,15 +58,49 @@
     }
   },
   "gameMode": {
-    "title": "Choose Game Mode",
+    "title": "Choose game mode",
     "local": {
-      "title": "🎮 Local Game",
-      "description": "Play solo on your device"
+      "title": "Local Game",
+      "description": "Manage all participants from this device. Ideal for playing physically with friends."
     },
     "multiplayer": {
-      "title": "🌐 Online Multiplayer",
-      "description": "Challenge other players online"
+      "title": "Online Multiplayer",
+      "description": "Invite other players online. Each player uses their own device."
     }
+  },
+  "config": {
+    "back": "← Back",
+    "numHorses": "Number of Horses",
+    "horses": "{count} Horses",
+    "numParticipants": "Number of Participants",
+    "initialChipValue": "Initial Chip Value (€)",
+    "maxAmountPerWindow": "Max Amount per Window (€)",
+    "prizeDistribution": "Prize Distribution",
+    "prizeWinnerOnly": "1st place only",
+    "prizeTop2": "1st and 2nd place (min 5 horses)",
+    "prizeTop3": "1st, 2nd and 3rd place (8 horses)",
+    "configureParticipants": "Configure Participants",
+    "participantsTitle": "👥 Configure Participants",
+    "startGame": "Start Game"
+  },
+  "racetrack": {
+    "title": "🏁 Racetrack",
+    "cards": "Cards:",
+    "window": "Window:",
+    "prizePool": "Prize Pool:",
+    "currentCard": "Current Card:",
+    "drawnCards": "Drawn Cards:",
+    "drawCard": "Draw Card"
+  },
+  "localBetting": {
+    "title": "💰 Buy Chips - Window {window}",
+    "maxAmount": "Max amount per window: €{amount} - Limit 3 horses per participant",
+    "close": "Close Betting Window"
+  },
+  "localResults": {
+    "title": "🏆 Race Results",
+    "newGame": "New Game",
+    "backToHome": "Back to Home"
   },
   "lobby": {
     "title": "Multiplayer Rooms",

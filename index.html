@@ -757,81 +757,81 @@
 
         <!-- Selezione Modalità -->
         <div class="game-mode-selection" id="gameModeSelection" style="display: none;">
-            <h2 style="text-align: center; margin-bottom: 30px;">Scegli la modalità di gioco</h2>
+            <h2 style="text-align: center; margin-bottom: 30px;" data-i18n="gameMode.title">Scegli la modalità di gioco</h2>
             <div style="display: flex; gap: 30px; justify-content: center; flex-wrap: wrap;">
                 <div class="mode-card" onclick="selectGameMode('local')" style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 30px; width: 300px; cursor: pointer; transition: all 0.3s; border: 3px solid transparent;">
                     <div style="font-size: 60px; text-align: center; margin-bottom: 20px;">🏠</div>
-                    <h3 style="text-align: center; margin-bottom: 15px;">Partita Locale</h3>
-                    <p style="text-align: center; color: #ccc; font-size: 14px;">Gestisci tutti i concorrenti da questo dispositivo. Ideale per giocare fisicamente con amici.</p>
+                    <h3 style="text-align: center; margin-bottom: 15px;" data-i18n="gameMode.local.title">Partita Locale</h3>
+                    <p style="text-align: center; color: #ccc; font-size: 14px;" data-i18n="gameMode.local.description">Gestisci tutti i concorrenti da questo dispositivo. Ideale per giocare fisicamente con amici.</p>
                 </div>
                 <div class="mode-card" onclick="selectGameMode('multiplayer')" style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 30px; width: 300px; cursor: pointer; transition: all 0.3s; border: 3px solid transparent;">
                     <div style="font-size: 60px; text-align: center; margin-bottom: 20px;">🌐</div>
-                    <h3 style="text-align: center; margin-bottom: 15px;">Multiplayer Online</h3>
-                    <p style="text-align: center; color: #ccc; font-size: 14px;">Invita altri giocatori online. Ogni giocatore usa il proprio dispositivo.</p>
+                    <h3 style="text-align: center; margin-bottom: 15px;" data-i18n="gameMode.multiplayer.title">Multiplayer Online</h3>
+                    <p style="text-align: center; color: #ccc; font-size: 14px;" data-i18n="gameMode.multiplayer.description">Invita altri giocatori online. Ogni giocatore usa il proprio dispositivo.</p>
                 </div>
             </div>
         </div>
 
         <!-- Configurazione Gioco -->
         <div class="game-config" id="gameConfig" style="display: none;">
-            <button class="btn" onclick="backToModeSelection()" style="background: #666; margin-bottom: 20px;">← Indietro</button>
+            <button class="btn" onclick="backToModeSelection()" style="background: #666; margin-bottom: 20px;" data-i18n="config.back">← Indietro</button>
             <div class="config-item">
-                <label>Numero Cavalli</label>
+                <label data-i18n="config.numHorses">Numero Cavalli</label>
                 <select id="numHorses">
-                    <option value="4">4 Cavalli</option>
-                    <option value="5">5 Cavalli</option>
-                    <option value="6">6 Cavalli</option>
-                    <option value="7">7 Cavalli</option>
-                    <option value="8">8 Cavalli</option>
+                    <option value="4" data-i18n="config.horses" data-i18n-params='{"count":"4"}'>4 Cavalli</option>
+                    <option value="5" data-i18n="config.horses" data-i18n-params='{"count":"5"}'>5 Cavalli</option>
+                    <option value="6" data-i18n="config.horses" data-i18n-params='{"count":"6"}'>6 Cavalli</option>
+                    <option value="7" data-i18n="config.horses" data-i18n-params='{"count":"7"}'>7 Cavalli</option>
+                    <option value="8" data-i18n="config.horses" data-i18n-params='{"count":"8"}'>8 Cavalli</option>
                 </select>
             </div>
             <div class="config-item">
-                <label>Numero Concorrenti</label>
+                <label data-i18n="config.numParticipants">Numero Concorrenti</label>
                 <input type="number" id="numParticipants" value="3" min="1" max="20">
             </div>
             <div class="config-item">
-                <label>Valore Iniziale Fiches (€)</label>
+                <label data-i18n="config.initialChipValue">Valore Iniziale Fiches (€)</label>
                 <input type="number" id="initialChipValue" value="0.20" step="0.10" min="0.10" onchange="formatToTwoDecimals(this)">
             </div>
             <div class="config-item">
-                <label>Importo Max per Finestra (€)</label>
+                <label data-i18n="config.maxAmountPerWindow">Importo Max per Finestra (€)</label>
                 <input type="number" id="maxAmountPerWindow" value="2.00" step="0.10" min="0.10" onchange="formatToTwoDecimals(this)">
             </div>
             <div class="config-item">
-                <label>Distribuzione Premi</label>
+                <label data-i18n="config.prizeDistribution">Distribuzione Premi</label>
                 <select id="prizeDistribution">
-                    <option value="1">Solo 1° posto</option>
-                    <option value="2" disabled>1° e 2° posto (min 5 cavalli)</option>
-                    <option value="3" disabled>1°, 2° e 3° posto (8 cavalli)</option>
+                    <option value="1" data-i18n="config.prizeWinnerOnly">Solo 1° posto</option>
+                    <option value="2" disabled data-i18n="config.prizeTop2">1° e 2° posto (min 5 cavalli)</option>
+                    <option value="3" disabled data-i18n="config.prizeTop3">1°, 2° e 3° posto (8 cavalli)</option>
                 </select>
             </div>
             <div style="width: 100%; text-align: center;">
-                <button class="btn" onclick="showParticipantsConfig()">Configura Concorrenti</button>
+                <button class="btn" onclick="showParticipantsConfig()" data-i18n="config.configureParticipants">Configura Concorrenti</button>
             </div>
         </div>
 
         <!-- Configurazione Concorrenti -->
         <div class="participants-config" id="participantsConfig" style="display: none;">
-            <h3>👥 Configura Concorrenti</h3>
+            <h3 data-i18n="config.participantsTitle">👥 Configura Concorrenti</h3>
             <div class="participants-grid" id="participantsGrid"></div>
             <div style="text-align: center; margin-top: 20px;">
-                <button class="btn" onclick="startGame()">Inizia Partita</button>
+                <button class="btn" onclick="startGame()" data-i18n="config.startGame">Inizia Partita</button>
             </div>
         </div>
 
         <!-- Pista di Corsa -->
         <div class="racetrack" id="racetrack" style="display: none;">
             <div class="track-header">
-                <h3>🏁 Pista di Corsa</h3>
+                <h3 data-i18n="racetrack.title">🏁 Pista di Corsa</h3>
                 <div class="game-info">
                     <div class="info-item">
-                        <strong>Carte:</strong> <span id="cardsDrawn">0</span>/<span id="totalCards">36</span>
+                        <strong data-i18n="racetrack.cards">Carte:</strong> <span id="cardsDrawn">0</span>/<span id="totalCards">36</span>
                     </div>
                     <div class="info-item">
-                        <strong>Finestra:</strong> <span id="currentWindow">1</span>
+                        <strong data-i18n="racetrack.window">Finestra:</strong> <span id="currentWindow">1</span>
                     </div>
                     <div class="info-item">
-                        <strong>Montepremi:</strong> €<span id="totalPool">0.00</span>
+                        <strong data-i18n="racetrack.prizePool">Montepremi:</strong> €<span id="totalPool">0.00</span>
                     </div>
                 </div>
             </div>
@@ -845,16 +845,16 @@
         <!-- Sezione Carte -->
         <div class="cards-section" id="cardsSection" style="display: none;">
             <div class="current-card-display">
-                <h4>Carta Corrente:</h4>
+                <h4 data-i18n="racetrack.currentCard">Carta Corrente:</h4>
                 <div class="card current" id="currentCard">
                     <div class="value">-</div>
                     <div class="suit">-</div>
                 </div>
-                <button class="btn" onclick="drawNextCard()" id="drawButton">Pesca Carta</button>
+                <button class="btn" onclick="drawNextCard()" id="drawButton" data-i18n="racetrack.drawCard">Pesca Carta</button>
             </div>
-            
+
             <div class="drawn-cards">
-                <h4>Carte Estratte:</h4>
+                <h4 data-i18n="racetrack.drawnCards">Carte Estratte:</h4>
                 <div class="cards-stack" id="cardsStack"></div>
             </div>
         </div>
