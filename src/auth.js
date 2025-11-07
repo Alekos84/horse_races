@@ -47,8 +47,13 @@ export function onAuthStateChange(callback) {
 
 // Richiedi reset password (invia email)
 export async function requestPasswordReset(email) {
+  // Usa sempre l'URL di produzione per il redirect
+  const redirectUrl = window.location.hostname === 'localhost'
+    ? 'http://localhost:5173/reset-password.html'  // Dev locale
+    : 'https://horse-races.vercel.app/reset-password.html';  // Produzione
+
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reset-password.html`
+    redirectTo: redirectUrl
   });
 
   if (error) throw error;
