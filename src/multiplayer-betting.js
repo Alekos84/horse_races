@@ -331,8 +331,8 @@ window.buyMultiplayerChips = async function(gameId, roundNumber) {
 
   // Salva puntata nel database
   try {
-    console.log('💾 Salvataggio puntata nel DB:', { gameId, horse: playerState.selectedHorse + 1, amount });
-    await placeBet(gameId, playerState.selectedHorse + 1, amount); // +1 perché DB usa 1-based
+    console.log('💾 Salvataggio puntata nel DB:', { gameId, horse: playerState.selectedHorse + 1, amount, chips });
+    await placeBet(gameId, playerState.selectedHorse + 1, amount, chips); // +1 perché DB usa 1-based, passa chips!
     console.log('✅ Puntata salvata nel DB');
 
     // Aggiorna localmente: cerca se esiste già una puntata per questo cavallo
