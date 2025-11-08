@@ -747,7 +747,10 @@
             <p>MVP v1.0 - Prototipo Locale</p>
             <div id="userInfo" style="display: none; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 15px;">
                 <span id="userEmail" style="color: #4CAF50; font-weight: bold;"></span>
-                <button id="languageToggle" style="background: #2196F3; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold;">🇮🇹 IT</button>
+                <div id="languageSwitch" style="display: flex; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+                    <button id="langIT" style="background: #2196F3; color: white; border: none; padding: 8px 16px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.3s;">IT</button>
+                    <button id="langEN" style="background: transparent; color: rgba(255,255,255,0.5); border: none; padding: 8px 16px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.3s;">EN</button>
+                </div>
                 <button id="logoutBtn" style="background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 14px;">Logout</button>
             </div>
         </div>

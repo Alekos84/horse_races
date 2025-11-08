@@ -1,6 +1,6 @@
 import { signUp, signIn, signOut, getCurrentUser, onAuthStateChange, requestPasswordReset } from './auth.js';
 import { supabase } from './main.js';
-import { t, getCurrentLanguage, toggleLanguage, getLanguageFlag, onLanguageChange } from './i18n.js';
+import { t, getCurrentLanguage, setLanguage, toggleLanguage, getLanguageFlag, onLanguageChange } from './i18n.js';
 
 let authModal = null;
 
@@ -246,10 +246,25 @@ function showUserInfo(email) {
   }
 }
 
-function updateLanguageButton() {
-  const languageToggle = document.getElementById('languageToggle');
-  if (languageToggle) {
-    languageToggle.textContent = `${getLanguageFlag()} ${getCurrentLanguage().toUpperCase()}`;
+function updateLanguageSwitch() {
+  const langIT = document.getElementById('langIT');
+  const langEN = document.getElementById('langEN');
+  const currentLang = getCurrentLanguage();
+
+  if (langIT && langEN) {
+    if (currentLang === 'it') {
+      // IT attivo
+      langIT.style.background = '#2196F3';
+      langIT.style.color = 'white';
+      langEN.style.background = 'transparent';
+      langEN.style.color = 'rgba(255,255,255,0.5)';
+    } else {
+      // EN attivo
+      langEN.style.background = '#2196F3';
+      langEN.style.color = 'white';
+      langIT.style.background = 'transparent';
+      langIT.style.color = 'rgba(255,255,255,0.5)';
+    }
   }
 }
 
@@ -263,15 +278,28 @@ function hideUserInfo() {
 export async function initAuth() {
   createAuthModal();
 
-  // Gestione cambio lingua
-  const languageToggle = document.getElementById('languageToggle');
-  if (languageToggle) {
-    // Imposta il testo iniziale
-    updateLanguageButton();
+  // Gestione cambio lingua con switch IT|EN
+  const langIT = document.getElementById('langIT');
+  const langEN = document.getElementById('langEN');
 
-    languageToggle.addEventListener('click', () => {
-      toggleLanguage();
-      updateLanguageButton();
+  if (langIT && langEN) {
+    // Imposta lo stato iniziale
+    updateLanguageSwitch();
+
+    // Click su IT
+    langIT.addEventListener('click', () => {
+      if (getCurrentLanguage() !== 'it') {
+        setLanguage('it');
+        updateLanguageSwitch();
+      }
+    });
+
+    // Click su EN
+    langEN.addEventListener('click', () => {
+      if (getCurrentLanguage() !== 'en') {
+        setLanguage('en');
+        updateLanguageSwitch();
+      }
     });
   }
 
