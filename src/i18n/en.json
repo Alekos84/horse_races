@@ -121,7 +121,14 @@
       "join": "Join",
       "rejoin": "Rejoin",
       "delete": "Delete",
-      "deleteConfirm": "Are you sure you want to delete this room?"
+      "deleteConfirm": "Are you sure you want to delete this room?",
+      "title": "🌐 Multiplayer Room #{id}",
+      "leave": "Leave Room",
+      "playersInRoom": "👥 Players in Room",
+      "noPlayers": "No players in room",
+      "noBets": "No bets",
+      "totalSpent": "Total spent: €{amount}",
+      "chips": "Chips:"
     },
     "createRoomForm": {
       "title": "Configure Multiplayer Room",
@@ -151,15 +158,6 @@
       "leave": "Leave",
       "minPlayersError": "⚠️ At least 2 players needed to start the race!",
       "creator": "(Creator)"
-    },
-    "room": {
-      "title": "🌐 Multiplayer Room #{id}",
-      "leave": "Leave Room",
-      "playersInRoom": "👥 Players in Room",
-      "noPlayers": "No players in room",
-      "noBets": "No bets",
-      "totalSpent": "Total spent: €{amount}",
-      "chips": "Chips:"
     }
   },
   "betting": {

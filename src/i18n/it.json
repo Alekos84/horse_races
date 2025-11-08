@@ -121,7 +121,14 @@
       "join": "Entra",
       "rejoin": "Rientra",
       "delete": "Elimina",
-      "deleteConfirm": "Sei sicuro di voler eliminare questa stanza?"
+      "deleteConfirm": "Sei sicuro di voler eliminare questa stanza?",
+      "title": "🌐 Stanza Multiplayer #{id}",
+      "leave": "Esci dalla Stanza",
+      "playersInRoom": "👥 Giocatori in Stanza",
+      "noPlayers": "Nessun giocatore nella stanza",
+      "noBets": "Nessuna puntata",
+      "totalSpent": "Totale speso: €{amount}",
+      "chips": "Fiches:"
     },
     "createRoomForm": {
       "title": "Configura Stanza Multiplayer",
@@ -151,15 +158,6 @@
       "leave": "Esci",
       "minPlayersError": "⚠️ Servono almeno 2 giocatori per iniziare la partita!",
       "creator": "(Creatore)"
-    },
-    "room": {
-      "title": "🌐 Stanza Multiplayer #{id}",
-      "leave": "Esci dalla Stanza",
-      "playersInRoom": "👥 Giocatori in Stanza",
-      "noPlayers": "Nessun giocatore nella stanza",
-      "noBets": "Nessuna puntata",
-      "totalSpent": "Totale speso: €{amount}",
-      "chips": "Fiches:"
     }
   },
   "betting": {
