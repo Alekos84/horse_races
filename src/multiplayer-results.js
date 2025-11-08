@@ -255,8 +255,13 @@ function getRankedHorses() {
     if (aFinished && !bFinished) return -1;
     if (!aFinished && bFinished) return 1;
 
-    // Poi ordina per posizione decrescente
-    return b.position - a.position;
+    // Per chi ha finito: ordina per posizione CRESCENTE (chi ha finito per primo ha position più bassa)
+    // Per chi non ha finito: ordina per posizione DECRESCENTE (chi è più avanti ha position più alta)
+    if (aFinished && bFinished) {
+      return a.position - b.position;  // CRESCENTE per cavalli finiti
+    } else {
+      return b.position - a.position;  // DECRESCENTE per cavalli in corsa
+    }
   });
 
   return horses;
